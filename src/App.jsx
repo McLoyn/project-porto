@@ -168,30 +168,65 @@ function GalleryStrip() {
   )
 }
 
-function MainPage({ navigate }) {
+const ropes = [
+  { cls: 'rope-back', y0: 30, yc: 90, y1: 20, count: 2 },
+  { cls: 'rope-mid', y0: 10, yc: 75, y1: 45, count: 3 },
+  { cls: 'rope-front', y0: 85, yc: 60, y1: 15, count: 3 },
+]
+const tilts = [-4, 3, -2, 5, -5, 2, -3, 4]
+
+const ropeY = ({ y0, yc, y1 }, t) =>
+  (1 - t) ** 2 * y0 + 2 * (1 - t) * t * yc + t ** 2 * y1
+
+function GalleryPage({ navigate }) {
   const [selected, setSelected] = useState(null)
+
+  let cursor = 0
+  const rows = ropes.map((rope, i) => {
+    const take = i === ropes.length - 1 ? artworks.length - cursor : rope.count
+    const items = artworks.slice(cursor, cursor + take).map((art, k, arr) => ({
+      art,
+      t: (k + 1) / (arr.length + 1),
+      tilt: tilts[(cursor + k) % tilts.length],
+    }))
+    cursor += take
+    return { rope, items }
+  })
+
   return (
-    <section className="page main-page">
-      <div className="page-intro">
-        <div><p className="eyebrow">THE ART ARCHIVE / 2024—2026</p><h1>Collected<br /><span>moments.</span></h1></div>
-        <p className="intro-aside">Sketches, characters, and pieces from the corners of my mind. Some finished, some still becoming.</p>
-      </div>
-      <div className="archive-toolbar"><span><span className="status-dot" /> {artworks.length} WORKS IN THE ARCHIVE</span><span>PERSONAL WORKS / 01—06</span></div>
-      <div className="artwork-grid">
-        {artworks.map((art, index) => (
-          <button className={`artwork-card card-${index + 1}`} key={art.title} onClick={() => setSelected(art)} aria-label={`Open ${art.title}`}>
-            <div className={`artwork-image ${art.tone}`}><DoodlePortrait /><span className="image-index">0{index + 1}</span><span className="image-open"><ArrowUpRight size={18} /></span></div>
-            <div className="artwork-meta"><span>{art.title}</span><span>{art.kind}</span></div>
-          </button>
-        ))}
-      </div>
-      <section className="commission-cta">
-        <span className="eyebrow">HAVE SOMETHING IN MIND?</span>
-        <h2>Let's make it<br /><em>something real.</em></h2>
-        <button className="primary-button" onClick={() => navigate('commission')}>Explore commissions <ArrowUpRight size={17} /></button>
-        <Sparkles className="cta-sparkle" size={38} strokeWidth={1} />
-      </section>
-      <footer className="site-footer"><span>LOYN — PERSONAL ART ARCHIVE</span><button onClick={() => navigate('landing')}>BACK TO LANDING ↑</button></footer>
+    <section className="page gallery-page">
+      <h1 className="gallery-title">Gallery</h1>
+
+      {rows.map(({ rope, items }) => (
+        <div className={`rope-row ${rope.cls}`} key={rope.cls}>
+          <svg className="rope-svg" viewBox="0 0 1000 100" preserveAspectRatio="none" aria-hidden="true">
+            <path d={`M0 ${rope.y0} Q500 ${rope.yc} 1000 ${rope.y1}`} vectorEffect="non-scaling-stroke" />
+          </svg>
+          {items.map(({ art, t, tilt }) => (
+            <button
+              key={art.title}
+              className="hung-paper"
+              style={{
+                left: `${t * 100}%`,
+                top: `calc(var(--rope-h) * ${ropeY(rope, t) / 100})`,
+                '--tilt': `${tilt}deg`,
+              }}
+              onClick={() => setSelected(art)}
+              aria-label={`Open ${art.title}`}
+            >
+              <span className="peg" />
+              <span className="paper-sheet">
+                {art.src ? <img src={art.src} alt={art.title} loading="lazy" /> : <DoodlePortrait />}
+              </span>
+            </button>
+          ))}
+        </div>
+      ))}
+
+      <button className="gallery-back" onClick={() => navigate('landing')}>
+        <ArrowLeft size={18} /> Back
+      </button>
+
       {selected && <ArtworkModal art={selected} onClose={() => setSelected(null)} />}
     </section>
   )
@@ -203,11 +238,14 @@ function ArtworkModal({ art, onClose }) {
     window.addEventListener('keydown', close)
     return () => window.removeEventListener('keydown', close)
   }, [onClose])
+
   return (
     <div className="modal-scrim" onMouseDown={onClose}>
       <div className="art-modal" onMouseDown={(event) => event.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}><X size={20} /></button>
-        <div className={`modal-art ${art.tone}`}><DoodlePortrait /></div>
+        <button className="modal-close" onClick={onClose} aria-label="Close"><X size={20} /></button>
+        <div className={`modal-art ${art.tone}`}>
+          {art.src ? <img className="modal-img" src={art.src} alt={art.title} /> : <DoodlePortrait />}
+        </div>
         <p className="eyebrow">{art.kind}</p><h2>{art.title}</h2><p className="muted">{art.note}</p>
       </div>
     </div>
@@ -309,7 +347,7 @@ export default function App() {
       <main className="main-content" key={transitionKey}>
         <div className="page-transition">
           {page === 'landing' && <Landing navigate={navigate} />}
-          {page === 'main' && <MainPage navigate={navigate} />}
+          {page === 'main' && <GalleryPage navigate={navigate} />}
           {page === 'commission' && <CommissionPage navigate={navigate} />}
           {(page === 'about' || page === 'queue') && <InfoPage type={page} navigate={navigate} />}
         </div>

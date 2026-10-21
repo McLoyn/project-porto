@@ -1,0 +1,98 @@
+// ===== TEMPEL KE src/App.jsx =====
+// 1) Ganti fungsi MainPage lama dengan GalleryPage ini
+//    (atau biarkan MainPage, lalu di App() ganti {page === 'main' && <GalleryPage .../>})
+// 2) Ganti ArtworkModal dengan versi di bawah (mendukung gambar asli via `src`)
+// 3) Tempel isi gallery.css ke bagian bawah src/styles.css
+
+// Tiap tali = kurva bezier kuadrat di viewBox 1000x100.
+// y0 = tinggi ujung kiri, yc = titik kontrol (makin besar = makin melorot), y1 = ujung kanan.
+const ropes = [
+  { cls: 'rope-back',  y0: 30, yc: 90, y1: 20, count: 2 },
+  { cls: 'rope-mid',   y0: 10, yc: 75, y1: 45, count: 3 },
+  { cls: 'rope-front', y0: 85, yc: 60, y1: 15, count: 3 },
+]
+const tilts = [-4, 3, -2, 5, -5, 2, -3, 4]
+
+// posisi y (0-100) tali pada t (0-1)
+const ropeY = ({ y0, yc, y1 }, t) =>
+  (1 - t) ** 2 * y0 + 2 * (1 - t) * t * yc + t ** 2 * y1
+
+function GalleryPage({ navigate }) {
+  const [selected, setSelected] = useState(null)
+
+  // bagi karya ke tiap tali; sisa karya masuk ke tali paling depan
+  let cursor = 0
+  const rows = ropes.map((rope, i) => {
+    const take = i === ropes.length - 1 ? artworks.length - cursor : rope.count
+    const items = artworks.slice(cursor, cursor + take).map((art, k, arr) => ({
+      art,
+      t: (k + 1) / (arr.length + 1),      // sebar merata sepanjang tali
+      tilt: tilts[(cursor + k) % tilts.length],
+    }))
+    cursor += take
+    return { rope, items }
+  })
+
+  return (
+    <section className="page gallery-page">
+      <h1 className="gallery-title">Gallery</h1>
+
+      {rows.map(({ rope, items }) => (
+        <div className={`rope-row ${rope.cls}`} key={rope.cls}>
+          <svg className="rope-svg" viewBox="0 0 1000 100" preserveAspectRatio="none" aria-hidden="true">
+            <path d={`M0 ${rope.y0} Q500 ${rope.yc} 1000 ${rope.y1}`} vectorEffect="non-scaling-stroke" />
+          </svg>
+          {items.map(({ art, t, tilt }) => (
+            <button
+              key={art.title}
+              className="hung-paper"
+              style={{
+                left: `${t * 100}%`,
+                top: `calc(var(--rope-h) * ${ropeY(rope, t) / 100})`,
+                '--tilt': `${tilt}deg`,
+              }}
+              onClick={() => setSelected(art)}
+              aria-label={`Open ${art.title}`}
+            >
+              <span className="peg" />
+              <span className="paper-sheet">
+                {art.src ? <img src={art.src} alt={art.title} loading="lazy" /> : <DoodlePortrait />}
+              </span>
+            </button>
+          ))}
+        </div>
+      ))}
+
+      <button className="gallery-back" onClick={() => navigate('landing')}>
+        <ArrowLeft size={18} /> Back
+      </button>
+
+      {selected && <ArtworkModal art={selected} onClose={() => setSelected(null)} />}
+    </section>
+  )
+}
+
+// Versi ArtworkModal yang menampilkan gambar penuh bila `src` ada
+function ArtworkModal({ art, onClose }) {
+  useEffect(() => {
+    const close = (event) => event.key === 'Escape' && onClose()
+    window.addEventListener('keydown', close)
+    return () => window.removeEventListener('keydown', close)
+  }, [onClose])
+  return (
+    <div className="modal-scrim" onMouseDown={onClose}>
+      <div className="art-modal" onMouseDown={(event) => event.stopPropagation()}>
+        <button className="modal-close" onClick={onClose} aria-label="Close"><X size={20} /></button>
+        <div className={`modal-art ${art.tone}`}>
+          {art.src ? <img className="modal-img" src={art.src} alt={art.title} /> : <DoodlePortrait />}
+        </div>
+        <p className="eyebrow">{art.kind}</p><h2>{art.title}</h2><p className="muted">{art.note}</p>
+      </div>
+    </div>
+  )
+}
+
+/* Cara pakai gambar asli:
+   taruh file di public/art/01.jpg dst, lalu di array `artworks` tambahkan:
+   { title: 'Study no. 01', kind: '...', tone: 'artwork-one', note: '...', src: '/art/01.jpg' }
+*/
