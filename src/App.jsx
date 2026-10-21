@@ -15,12 +15,13 @@ const socials = [
 ]
 
 const artworks = [
-  { title: 'Study no. 01', kind: 'Character study', tone: 'artwork-one', note: 'soft graphite / 2025' },
-  { title: 'Quiet afternoon', kind: 'Illustration', tone: 'artwork-two', note: 'pencil & digital' },
-  { title: 'Little daydream', kind: 'Character design', tone: 'artwork-three', note: 'linework study' },
-  { title: 'After the rain', kind: 'Illustration', tone: 'artwork-four', note: 'personal work' },
-  { title: 'Untitled portrait', kind: 'Portrait', tone: 'artwork-five', note: 'rough sketch' },
-  { title: 'Blue hour', kind: 'Character study', tone: 'artwork-six', note: 'concept sketch' },
+  { title: 'The Frame',      kind: 'Illustration',    tone: 'artwork-one',   note: 'digital painting', src: '/art/01.jpg', thumb: '/art/thumb/01.jpg' },
+  { title: 'Shattered',      kind: 'Illustration',    tone: 'artwork-two',   note: 'digital',          src: '/art/02.jpg', thumb: '/art/thumb/02.jpg' },
+  { title: 'Duel',           kind: 'Character study', tone: 'artwork-three', note: 'digital sketch',   src: '/art/03.jpg', thumb: '/art/thumb/03.jpg' },
+  { title: 'Crow & Bridge',  kind: 'Character design', tone: 'artwork-four', note: 'digital',          src: '/art/04.jpg', thumb: '/art/thumb/04.jpg' },
+  { title: 'Lying in Grass', kind: 'Illustration',    tone: 'artwork-five',  note: 'digital',          src: '/art/05.jpg', thumb: '/art/thumb/05.jpg' },
+  { title: 'Golden Field',   kind: 'Illustration',    tone: 'artwork-six',   note: 'digital painting', src: '/art/06.jpg', thumb: '/art/thumb/06.jpg' },
+  { title: 'Hat & Hills',    kind: 'Portrait',        tone: 'artwork-one',   note: 'digital painting', src: '/art/07.jpg', thumb: '/art/thumb/07.jpg' },
 ]
 
 const commissionPanels = [
@@ -172,7 +173,7 @@ function GalleryStrip() {
       {artworks.slice(0, 4).map((art, index) => (
         <div className={`hanging-item hang-${index + 1}`} key={art.title}>
           <span className="clip" />
-          <div className={`artwork-placeholder ${art.tone}`}><DoodlePortrait /></div>
+          <div className={`artwork-placeholder ${art.tone}`}><img src={art.thumb} alt={art.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /></div>
           <span className="artwork-label">{art.title}</span>
         </div>
       ))}
@@ -228,7 +229,7 @@ function GalleryPage({ navigate }) {
             >
               <span className="peg" />
               <span className="paper-sheet">
-                {art.src ? <img src={art.src} alt={art.title} loading="lazy" /> : <DoodlePortrait />}
+                {art.src ? <img src={art.thumb || art.src} alt={art.title} loading="lazy" /> : <DoodlePortrait />}
               </span>
             </button>
           ))}
