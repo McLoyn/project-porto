@@ -4,7 +4,15 @@ import {
   ChevronRight, House, Menu, X, ExternalLink, Sparkles
 } from 'lucide-react'
 
-const VGEN_URL = 'https://vgen.co/' // Replace with your own VGen profile URL.
+const VGEN_URL = 'https://vgen.co/loyn'
+const TRELLO_URL = 'https://trello.com/b/j8EIfMRz/loyn-workspace'
+const socials = [
+  ['X / Twitter', 'https://x.com/loynillust'],
+  ['Instagram', 'https://www.instagram.com/loynillust'],
+  ['WhatsApp', 'https://wa.me/6287733660846'],
+  ['Email', 'mailto:ozloynn@gmail.com'],
+  ['VGen', VGEN_URL],
+]
 
 const artworks = [
   { title: 'Study no. 01', kind: 'Character study', tone: 'artwork-one', note: 'soft graphite / 2025' },
@@ -21,32 +29,36 @@ const commissionPanels = [
     title: 'Terms of Service',
     subtitle: 'A few notes before we begin.',
     content: [
-      ['Usage', 'Personal use is welcome. Commercial use and redistribution must be discussed in advance.'],
-      ['Payment', 'Payment details and timing will be confirmed through my commission platform.'],
-      ['Process', 'I will share progress updates when applicable. Please send clear references with your request.'],
-      ['Changes', 'Small adjustments may be possible during the process; major changes depend on the stage of work.'],
+      ['Platform', 'Main commission is at VGen for safety (international). Gopay and Dana for local payment.'],
+      ['Payment', 'Down payment 50% before the project starts. The remaining 50% is paid before the final file is sent. Non-refundable.'],
+      ['Timeline', 'Rough sketch: 1–4 days. Full render: 7–30 days after sketch/lineart is approved.'],
+      ['Revisions', '2 times major revision and unlimited minor revision.'],
+      ['Portfolio', 'Commissioned artworks may be included in my portfolio (website, social media, etc).'],
+      ['Files', 'Google Drive share for terms and files is only available for 30 days.'],
     ],
   },
   {
     eyebrow: '02 / THE PROCESS',
     title: 'Comms Details',
-    subtitle: 'From your idea to a finished piece.',
+    subtitle: 'What I will and will not draw.',
     content: [
-      ['01 — Request', 'Choose a commission type and describe your idea on VGen.'],
-      ['02 — Discussion', 'We confirm the brief, references, scope, and timeline.'],
-      ['03 — Sketch', 'The composition is established before the illustration is refined.'],
-      ['04 — Delivery', 'The final artwork is delivered digitally through the agreed platform.'],
+      ['Will draw', 'Original Character, FanArt, Kemonomimi.'],
+      ['Will NOT draw', 'NSFW, Hard Mecha, Heavy Gore.'],
+      ['Order', 'Order through VGen (international) or contact me directly for local payment.'],
+      ['Queue', 'Check the current queue on my Trello board.'],
     ],
   },
   {
     eyebrow: '03 / INVESTMENT',
     title: 'Price List',
-    subtitle: 'A starting point for your idea.',
+    subtitle: 'Base price and additional options.',
     content: [
-      ['Portrait', 'Starting price — add your price here'],
-      ['Half body', 'Starting price — add your price here'],
-      ['Full body', 'Starting price — add your price here'],
-      ['Extra options', 'Complex details, extra characters, and commercial use may affect the final quote.'],
+      ['Bust up', 'IDR 40k (was 50k) / USD 15 — 1 figure'],
+      ['Half body', 'IDR 80k / USD 20 — 1 figure'],
+      ['Full body', 'IDR 120k / USD 40 — 1 figure'],
+      ['Monetized content', '+40% of the base price'],
+      ['Commercial merch', '+80% of the base price'],
+      ['Revisions', 'Minor revision: free. Major revision: IDR 20k / USD 5.'],
     ],
   },
 ]
@@ -149,7 +161,7 @@ function Landing({ navigate }) {
         </div>
         <GalleryStrip />
       </div>
-      <footer className="site-footer"><span>LOYN — PERSONAL ART ARCHIVE</span><span>MADE SLOWLY, WITH CARE ↗</span></footer>
+      <footer className="site-footer"><span>LOYN ILLUST — COMMISSION SHEET</span><span>MADE SLOWLY, WITH CARE ↗</span></footer>
     </section>
   )
 }
@@ -277,7 +289,6 @@ function CommissionPage({ navigate }) {
               <div className="info-row" key={title}><span className="info-number">0{index + 1}</span><div><h3>{title}</h3><p>{body}</p></div></div>
             ))}
           </div>
-          {active === 2 && <p className="price-note">* Replace the sample price text with your actual rates before publishing.</p>}
           <div className="panel-bottom"><span>PLEASE READ BEFORE ORDERING</span><span>✳</span></div>
         </article>
         <button className="side-preview side-right" onClick={next}>
@@ -296,7 +307,7 @@ function CommissionPage({ navigate }) {
         <div><span className="eyebrow">READY WHEN YOU ARE</span><h2>Let's talk<br /><em>about your idea.</em></h2></div>
         <a className="primary-button" href={VGEN_URL} target="_blank" rel="noreferrer">Order on VGen <ExternalLink size={16} /></a>
       </div>
-      <footer className="site-footer"><span>LOYN — COMMISSION INFORMATION</span><button onClick={() => navigate('main')}>BACK TO GALLERY ↑</button></footer>
+      <footer className="site-footer"><span>LOYN ILLUST — COMMISSION SHEET</span><button onClick={() => navigate('main')}>BACK TO GALLERY ↑</button></footer>
     </section>
   )
 }
@@ -309,9 +320,22 @@ function InfoPage({ type, navigate }) {
       <h1>{isQueue ? 'Commission queue.' : 'Hello, I’m Loyn.'}</h1>
       <div className="simple-card">
         <span className="status-dot" />
-        <h2>{isQueue ? 'Queue information coming soon.' : 'An artist collecting little moments.'}</h2>
-        <p>{isQueue ? 'Add your current queue, estimated progress, or a link to a public queue tracker here.' : 'This section is ready for your introduction, contact links, and a few words about your art.'}</p>
-        {!isQueue && <a className="underlined-link" href={VGEN_URL} target="_blank" rel="noreferrer">Find me on VGen <ExternalLink size={15} /></a>}
+        <h2>{isQueue ? 'Follow my progress on Trello.' : 'Loyn Illust — illustrator.'}</h2>
+        {isQueue ? (
+          <>
+            <p>My current commission queue is updated on my Trello board.</p>
+            <a className="underlined-link" href={TRELLO_URL} target="_blank" rel="noreferrer">Open queue <ExternalLink size={15} /></a>
+          </>
+        ) : (
+          <>
+            <p>Commissions open for original characters, fanart, and kemonomimi. Find me here:</p>
+            <ul className="contact-list">
+              {socials.map(([label, href]) => (
+                <li key={label}><a className="underlined-link" href={href} target="_blank" rel="noreferrer">{label} <ExternalLink size={14} /></a></li>
+              ))}
+            </ul>
+          </>
+        )}
       </div>
       <button className="underlined-link" onClick={() => navigate('main')}><ArrowLeft size={15} /> Back to gallery</button>
     </section>
