@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react'
 import {
   ArrowDownRight, ArrowLeft, ArrowRight, ArrowUpRight, ChevronLeft,
-  ChevronRight, House, Menu, X, ExternalLink, Sparkles
+  ChevronRight, House, Menu, X, ExternalLink, Sparkles, Instagram, Twitter, Mail
 } from 'lucide-react'
 
 const VGEN_URL = 'https://vgen.co/loyn'
+const heroSocials = [
+  ['X', 'https://x.com/loynillust', <Twitter size={16} strokeWidth={1.6} key="x" />],
+  ['Instagram', 'https://www.instagram.com/loynillust', <Instagram size={16} strokeWidth={1.6} key="ig" />],
+  ['Email', 'mailto:ozloynn@gmail.com', <Mail size={16} strokeWidth={1.6} key="mail" />],
+  ['VGen', VGEN_URL, <span className="vgen-letter" key="vgen">V</span>],
+]
 const TRELLO_URL = 'https://trello.com/b/j8EIfMRz/loyn-workspace'
 const socials = [
   ['X / Twitter', 'https://x.com/loynillust'],
@@ -17,11 +23,11 @@ const socials = [
 const artworks = [
   { title: 'The Frame',      kind: 'Illustration',    tone: 'artwork-one',   note: 'digital painting', src: '/art/01.jpg', thumb: '/art/thumb/01.jpg' },
   { title: 'Shattered',      kind: 'Illustration',    tone: 'artwork-two',   note: 'digital',          src: '/art/02.jpg', thumb: '/art/thumb/02.jpg' },
-  { title: 'Duel',           kind: 'Character study', tone: 'artwork-three', note: 'digital sketch',   src: '/art/03.jpg', thumb: '/art/thumb/03.jpg' },
+  { title: 'Training',           kind: 'Character study', tone: 'artwork-three', note: 'digital sketch',   src: '/art/03.jpg', thumb: '/art/thumb/03.jpg' },
   { title: 'Crow & Bridge',  kind: 'Character design', tone: 'artwork-four', note: 'digital',          src: '/art/04.jpg', thumb: '/art/thumb/04.jpg' },
   { title: 'Lying in Grass', kind: 'Illustration',    tone: 'artwork-five',  note: 'digital',          src: '/art/05.jpg', thumb: '/art/thumb/05.jpg' },
   { title: 'Golden Field',   kind: 'Illustration',    tone: 'artwork-six',   note: 'digital painting', src: '/art/06.jpg', thumb: '/art/thumb/06.jpg' },
-  { title: 'Hat & Hills',    kind: 'Portrait',        tone: 'artwork-one',   note: 'digital painting', src: '/art/07.jpg', thumb: '/art/thumb/07.jpg' },
+  { title: 'Lady Vertin',    kind: 'Portrait',        tone: 'artwork-one',   note: 'digital painting', src: '/art/07.jpg', thumb: '/art/thumb/07.jpg' },
 ]
 
 const commissionPanels = [
@@ -66,22 +72,25 @@ const commissionPanels = [
 
 function Header({ onMenu, onHome, onBack, current }) {
   return (
-    <header className="topbar">
-      <button className="brand-button" onClick={onMenu} aria-label="Open navigation menu">
-        <Menu size={18} strokeWidth={1.7} />
-        <span>Navbar</span>
-      </button>
-      <button className="brand-mark" onClick={onHome} aria-label="Go to landing page">
-        <span className="brand-scribble">loyn</span>
-        <span className="brand-dot" />
-      </button>
-      <div className="topbar-right">
-        {current !== 'landing' && (
-          <button className="text-link" onClick={onBack}><ChevronLeft size={14} /> Back</button>
-        )}
-        <button className="text-link" onClick={onHome}><House size={14} /> Home</button>
-      </div>
-    </header>
+    <div className="topbar-wrap">
+      <header className="topbar">
+        <div className="topbar-left">
+          <button className="brand-button" onClick={onMenu} aria-label="Open navigation menu">
+            <Menu size={20} strokeWidth={1.7} />
+          </button>
+          <button className="brand-mark" onClick={onHome} aria-label="Go to landing page">
+            <span className="brand-scribble">loyn</span>
+            <span className="brand-dot" />
+          </button>
+        </div>
+        <div className="topbar-right">
+          {current !== 'landing' && (
+            <button className="text-link" onClick={onBack}><ChevronLeft size={14} /> Back</button>
+          )}
+          <button className="text-link" onClick={onHome}><House size={14} /> Home</button>
+        </div>
+      </header>
+    </div>
   )
 }
 
@@ -137,14 +146,18 @@ function DoodlePortrait() {
 function Landing({ navigate }) {
   return (
     <section className="page landing-page">
-      <div className="landing-kicker"><span className="tiny-star">✳</span> INDEPENDENT ARTIST / DIGITAL SKETCHBOOK</div>
+      <div className="landing-kicker"><span className="tiny-star">✳</span> FREELANCE ARTIST / DIGITAL PORTFOLIO</div>
       <div className="hero-layout">
         <div className="hero-copy">
-          <p className="eyebrow">WELCOME TO MY LITTLE CORNER</p>
+          <p className="eyebrow">WELCOME TO LOYN'S LITTLE CORNER</p>
           <h1>Drawn from<br /><span>daydreams.</span></h1>
           <p className="hero-description">A collection of characters, unfinished thoughts, and little things I wanted to keep.</p>
           <button className="primary-button" onClick={() => navigate('main')}>Enter the gallery <ArrowDownRight size={17} /></button>
-          <span className="hero-footnote">SCROLL A LITTLE, STAY A WHILE.</span>
+          <div className="hero-socials">
+            {heroSocials.map(([label, href, icon]) => (
+              <a key={label} className="social-circle" href={href} target="_blank" rel="noreferrer" aria-label={label} title={label}>{icon}</a>
+            ))}
+          </div>
         </div>
         <div className="portrait-stage">
           <div className="portrait-note note-top">fig. 01 — a familiar face</div>
