@@ -246,3 +246,5 @@ a { color: inherit; text-decoration: none; }
   .rope-front { --paper-w: 28vw; }
 }
 @media (prefers-reduced-motion: reduce) { .hung-paper { transition: none; } }
+
+.portrait-paper .hero-img { width: calc(100% - 28px); height: calc(100% - 28px); object-fit: cover; position: relative; }

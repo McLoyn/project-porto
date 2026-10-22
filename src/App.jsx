@@ -148,7 +148,10 @@ function Landing({ navigate }) {
         </div>
         <div className="portrait-stage">
           <div className="portrait-note note-top">fig. 01 — a familiar face</div>
-          <div className="portrait-paper"><DoodlePortrait /><span className="portrait-caption">a study in progress</span></div>
+          <div className="portrait-paper">
+             <img className="hero-img" src="/art/01.jpg" alt="Loyn artwork" />
+             <span className="portrait-caption">a study in progress</span>
+          </div>
           <span className="orbit orbit-one" />
           <span className="orbit orbit-two" />
           <span className="stage-index">LOYN® / 001</span>
