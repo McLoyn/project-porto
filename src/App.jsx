@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
-  ArrowDownRight, ArrowLeft, ArrowUpRight, ChevronLeft,
+  ArrowDownRight, ArrowLeft, ArrowRight, ArrowUpRight, ChevronLeft,
   Menu, X, ExternalLink, Sparkles, Instagram, Twitter, Mail
 } from 'lucide-react'
 
@@ -225,60 +225,215 @@ function GalleryStrip() {
   )
 }
 
-const ropes = [
-  { cls: 'rope-back', y0: 30, yc: 90, y1: 20, count: 2 },
-  { cls: 'rope-mid', y0: 10, yc: 75, y1: 45, count: 3 },
-  { cls: 'rope-front', y0: 85, yc: 60, y1: 15, count: 3 },
+const ROPES = [
+  { key: 'front', paperW: 170, gap: 60, ropeH: 120, sag: 40, opacity: 1,   anchors: [60, 20, 70, 10, 50, 30] },
+  { key: 'mid',   paperW: 140, gap: 70, ropeH: 100, sag: 34, opacity: 0.8, anchors: [20, 55, 15, 50, 25, 60] },
+  { key: 'back',  paperW: 110, gap: 80, ropeH: 80,  sag: 26, opacity: 0.4, anchors: [40, 15, 45, 10, 35, 20] },
 ]
-const tilts = [-4, 3, -2, 5, -5, 2, -3, 4]
+const TILTS = [-4, 3, -2, 5, -5, 2, -3, 4]
 
-const ropeY = ({ y0, yc, y1 }, t) =>
-  (1 - t) ** 2 * y0 + 2 * (1 - t) * t * yc + t ** 2 * y1
+function buildRow(cfg, r, items, s, vw) {
+  const paperW = cfg.paperW * s
+  const spacing = (cfg.paperW + cfg.gap) * s
+  const seg = spacing * 2
+  const ropeH = cfg.ropeH * s
+  const sag = cfg.sag * s
+  const segs = Math.max(1, Math.ceil(items.length / 2))
+  const lonely = items.length % 2 === 1
+  const segLen = (k) => (lonely && k === segs - 1 ? spacing : seg)
+  const xs = [0]
+  for (let k = 0; k < segs; k++) xs.push(xs[k] + segLen(k))
+  const inner = xs[segs]
+  const padX = Math.max(60 * s, (vw - inner) / 2)
+  const width = inner + padX * 2
+  const a = (i) => cfg.anchors[i % cfg.anchors.length] * s
+
+  let path = `M0 ${a(0)} L${padX} ${a(0)} `
+  for (let k = 0; k < segs; k++) {
+    const x0 = padX + xs[k], len = segLen(k)
+    path += `M${x0} ${a(k)} Q${x0 + len / 2} ${(a(k) + a(k + 1)) / 2 + sag} ${x0 + len} ${a(k + 1)} `
+  }
+  path += `M${padX + inner} ${a(segs)} L${width} ${a(segs)}`
+
+  const placed = items.map((art, i) => {
+    const k = Math.floor(i / 2)
+    const t = lonely && k === segs - 1 ? 0.5 : i % 2 === 0 ? 0.25 : 0.75
+    const y0 = a(k), y1 = a(k + 1), c = (y0 + y1) / 2 + sag
+    return {
+      art,
+      x: padX + xs[k] + t * segLen(k),
+      y: (1 - t) ** 2 * y0 + 2 * (1 - t) * t * c + t ** 2 * y1,
+      tilt: TILTS[(i * 3 + r) % TILTS.length],
+    }
+  })
+  return { key: cfg.key, r, width, ropeH, paperW, opacity: cfg.opacity, path, placed,
+           height: ropeH + paperW * 1.25 + 24 * s }
+}
 
 function GalleryPage({ navigate }) {
   const [selected, setSelected] = useState(null)
+  const [vw, setVw] = useState(1000)
+  const [hinted, setHinted] = useState(true)
+  const stageRef = useRef(null)
+  const rowRefs = useRef([])
+  const thumbRef = useRef(null)
+  const m = useRef({ target: 0, current: 0, max: [0, 0, 0], front: 1, ratio: 1, drag: null, moved: false, raf: 0 })
 
-  let cursor = 0
-  const rows = ropes.map((rope, i) => {
-    const take = i === ropes.length - 1 ? artworks.length - cursor : rope.count
-    const items = artworks.slice(cursor, cursor + take).map((art, k, arr) => ({
-      art,
-      t: (k + 1) / (arr.length + 1),
-      tilt: tilts[(cursor + k) % tilts.length],
-    }))
-    cursor += take
-    return { rope, items }
-  })
+  const s = Math.min(1, Math.max(0.6, vw / 1100))
+  const rows = useMemo(
+    () => ROPES.map((cfg, r) => buildRow(cfg, r, artworks.filter((_, i) => i % 3 === r), s, vw)),
+    [s, vw]
+  )
+
+  const apply = useCallback(() => {
+    const st = m.current
+    const p = st.front > 1 ? st.current / st.front : 0
+    rowRefs.current.forEach((el, r) => {
+      if (el) el.style.transform = `translate3d(${-p * st.max[r]}px,0,0)`
+    })
+    if (thumbRef.current) {
+      thumbRef.current.style.width = `${st.ratio * 100}%`
+      thumbRef.current.style.left = `${p * (1 - st.ratio) * 100}%`
+    }
+  }, [])
+
+  const tick = useCallback(() => {
+    const st = m.current
+    st.current += (st.target - st.current) * (st.drag ? 0.35 : 0.12)
+    if (Math.abs(st.target - st.current) < 0.3) {
+      st.current = st.target
+      st.raf = 0
+    } else {
+      st.raf = requestAnimationFrame(tick)
+    }
+    apply()
+  }, [apply])
+
+  const goTo = useCallback((x) => {
+    const st = m.current
+    st.target = Math.min(st.front, Math.max(0, x))
+    if (!st.raf) st.raf = requestAnimationFrame(tick)
+    setHinted(false)
+  }, [tick])
+
+  useEffect(() => {
+    const el = stageRef.current
+    const ro = new ResizeObserver(() => setVw(el.clientWidth))
+    ro.observe(el)
+    setVw(el.clientWidth)
+    return () => { ro.disconnect(); cancelAnimationFrame(m.current.raf) }
+  }, [])
+
+  useEffect(() => {
+    const st = m.current
+    st.max = rows.map((row) => Math.max(0, row.width - vw))
+    st.front = Math.max(1, st.max[0])
+    st.ratio = Math.min(1, vw / rows[0].width)
+    st.target = Math.min(st.target, st.front)
+    st.current = Math.min(st.current, st.front)
+    apply()
+  }, [rows, vw, apply])
+
+  useEffect(() => {
+    const el = stageRef.current
+    const onWheel = (e) => {
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY) || e.shiftKey) {
+        e.preventDefault()
+        goTo(m.current.target + (e.deltaX || e.deltaY))
+      }
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+  }, [goTo])
+
+  const onPointerDown = (e) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return
+    const st = m.current
+    st.moved = false
+    st.drag = { x: e.clientX, start: st.target, id: e.pointerId, last: e.clientX, t: performance.now(), v: 0 }
+  }
+
+  const onPointerMove = (e) => {
+    const st = m.current, d = st.drag
+    if (!d) return
+    const dx = e.clientX - d.x
+    if (!st.moved && Math.abs(dx) > 6) {
+      st.moved = true
+      e.currentTarget.setPointerCapture(d.id)
+    }
+    if (st.moved) {
+      const now = performance.now()
+      d.v = (d.last - e.clientX) / Math.max(1, now - d.t)
+      d.last = e.clientX
+      d.t = now
+      goTo(d.start - dx)
+    }
+  }
+
+  const endDrag = () => {
+    const st = m.current, d = st.drag
+    st.drag = null
+    if (st.moved && d) goTo(st.target + d.v * 220)
+  }
+
+  const step = Math.max(240, vw * 0.6)
+  const onKeyDown = (e) => {
+    if (e.key === 'ArrowRight') { e.preventDefault(); goTo(m.current.target + step) }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(m.current.target - step) }
+  }
 
   return (
     <section className="page gallery-page">
       <h1 className="gallery-title">Gallery</h1>
 
-      {rows.map(({ rope, items }) => (
-        <div className={`rope-row ${rope.cls}`} key={rope.cls}>
-          <svg className="rope-svg" viewBox="0 0 1000 100" preserveAspectRatio="none" aria-hidden="true">
-            <path d={`M0 ${rope.y0} Q500 ${rope.yc} 1000 ${rope.y1}`} vectorEffect="non-scaling-stroke" />
-          </svg>
-          {items.map(({ art, t, tilt }) => (
-            <button
-              key={art.title}
-              className="hung-paper"
-              style={{
-                left: `${t * 100}%`,
-                top: `calc(var(--rope-h) * ${ropeY(rope, t) / 100})`,
-                '--tilt': `${tilt}deg`,
-              }}
-              onClick={() => setSelected(art)}
-              aria-label={`Open ${art.title}`}
-            >
-              <span className="peg" />
-              <span className="paper-sheet">
-                {art.src ? <img src={art.thumb || art.src} alt={art.title} loading="lazy" /> : <DoodlePortrait />}
-              </span>
-            </button>
-          ))}
-        </div>
-      ))}
+      <div
+        className="rope-stage"
+        ref={stageRef}
+        tabIndex={0}
+        role="region"
+        aria-label="Gallery. Drag sideways or use the arrow keys to see more artworks."
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onKeyDown={onKeyDown}
+        onScroll={(e) => { e.currentTarget.scrollLeft = 0 }}
+        onClickCapture={(e) => { if (m.current.moved) { e.preventDefault(); e.stopPropagation(); m.current.moved = false } }}
+      >
+        {[...rows].reverse().map((row) => (
+          <div
+            key={row.key}
+            className="rope-track"
+            ref={(el) => { rowRefs.current[row.r] = el }}
+            style={{ width: row.width, height: row.height, opacity: row.opacity, zIndex: 3 - row.r }}
+          >
+            <svg className="rope-line" width={row.width} height={row.ropeH} aria-hidden="true">
+              <path d={row.path} />
+            </svg>
+            {row.placed.map(({ art, x, y, tilt }) => (
+              <button
+                key={art.title}
+                className="hung-paper"
+                style={{ left: x, top: y, width: row.paperW, '--tilt': `${tilt}deg` }}
+                onClick={() => setSelected(art)}
+                aria-label={`Open ${art.title}`}
+              >
+                <span className="peg" />
+                <span className="paper-sheet">
+                  {art.src ? <img src={art.thumb || art.src} alt={art.title} loading="lazy" draggable="false" /> : <DoodlePortrait />}
+                </span>
+              </button>
+            ))}
+          </div>
+        ))}
+      </div>
+
+      <div className="gallery-controls">
+        <button className="circle-button" onClick={() => goTo(m.current.target - step)} aria-label="Previous artworks"><ArrowLeft size={17} /></button>
+        <div className="scrubber" aria-hidden="true"><span ref={thumbRef} /></div>
+        <button className="circle-button" onClick={() => goTo(m.current.target + step)} aria-label="Next artworks"><ArrowRight size={17} /></button>
+      </div>
+      <p className={`drag-hint ${hinted ? '' : 'gone'}`}>drag sideways to see more ✳</p>
 
       <button className="gallery-back" onClick={() => navigate('landing')}>
         <ArrowLeft size={18} /> Back
