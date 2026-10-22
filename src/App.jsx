@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import {
-  ArrowDownRight, ArrowLeft, ArrowRight, ArrowUpRight, ChevronLeft,
-  ChevronRight, House, Menu, X, ExternalLink, Sparkles, Instagram, Twitter, Mail
+  ArrowDownRight, ArrowLeft, ArrowUpRight, ChevronLeft,
+  House, Menu, X, ExternalLink, Sparkles, Instagram, Twitter, Mail
 } from 'lucide-react'
 
 const VGEN_URL = 'https://vgen.co/loyn'
@@ -30,44 +30,45 @@ const artworks = [
   { title: 'Lady Vertin',    kind: 'Portrait',        tone: 'artwork-one',   note: 'digital painting', src: '/art/07.jpg', thumb: '/art/thumb/07.jpg' },
 ]
 
-const commissionPanels = [
-  {
-    eyebrow: '01 / PLEASE READ',
-    title: 'Terms of Service',
-    subtitle: 'A few notes before we begin.',
-    content: [
-      ['Platform', 'Main commission is at VGen for safety (international). Gopay and Dana for local payment.'],
-      ['Payment', 'Down payment 50% before the project starts. The remaining 50% is paid before the final file is sent. Non-refundable.'],
-      ['Timeline', 'Rough sketch: 1–4 days. Full render: 7–30 days after sketch/lineart is approved.'],
-      ['Revisions', '2 times major revision and unlimited minor revision.'],
-      ['Portfolio', 'Commissioned artworks may be included in my portfolio (website, social media, etc).'],
-      ['Files', 'Google Drive share for terms and files is only available for 30 days.'],
-    ],
-  },
-  {
-    eyebrow: '02 / THE PROCESS',
-    title: 'Comms Details',
-    subtitle: 'What I will and will not draw.',
-    content: [
-      ['Will draw', 'Original Character, FanArt, Kemonomimi.'],
-      ['Will NOT draw', 'NSFW, Hard Mecha, Heavy Gore.'],
-      ['Order', 'Order through VGen (international) or contact me directly for local payment.'],
-      ['Queue', 'Check the current queue on my Trello board.'],
-    ],
-  },
-  {
-    eyebrow: '03 / INVESTMENT',
-    title: 'Price List',
-    subtitle: 'Base price and additional options.',
-    content: [
-      ['Bust up', 'IDR 40k (was 50k) / USD 15 — 1 figure'],
-      ['Half body', 'IDR 80k / USD 20 — 1 figure'],
-      ['Full body', 'IDR 120k / USD 40 — 1 figure'],
-      ['Monetized content', '+40% of the base price'],
-      ['Commercial merch', '+80% of the base price'],
-      ['Revisions', 'Minor revision: free. Major revision: IDR 20k / USD 5.'],
-    ],
-  },
+const quickFacts = [
+  ['Order via', 'VGen / direct (local)'],
+  ['Down payment', '50%'],
+  ['Rough sketch', '1–4 days'],
+  ['Full render', '7–30 days'],
+]
+
+const basePrice = [
+  ['Bust up', '1', '50k', '40k', '15'],
+  ['Half body', '1', null, '80k', '20'],
+  ['Full body', '1', null, '120k', '40'],
+]
+
+const additionalPrice = [
+  ['Monetized content', '+40%', '+40%'],
+  ['Commercial merch', '+80%', '+80%'],
+  ['Minor revision', 'Free', 'Free'],
+  ['Major revision', '20k', '5'],
+]
+
+const willNot = ['NSFW', 'Hard Mecha', 'Heavy Gore']
+const willDraw = ['Original Character', 'FanArt', 'Kemonomimi']
+
+const terms = [
+  ['Platform', 'Main commission is on VGen for safety (international). Local payment via Gopay or Dana.'],
+  ['Payment', '50% down payment before the project starts; the remaining 50% before the final file is sent. Non-refundable.'],
+  ['Rough sketch', '1–4 days.'],
+  ['Full render', '7–30 days, counted after the sketch/lineart is approved.'],
+  ['Revisions', '2 major revisions and unlimited minor revisions.'],
+  ['Portfolio', 'Commissioned artworks may be shown in my portfolio (website, social media, etc).'],
+  ['Files', 'Google Drive share for the terms and files is available for 30 days.'],
+]
+
+const steps = [
+  ['Order', 'Choose a type and send your idea and references on VGen (or contact me directly for local payment).'],
+  ['Down payment', 'Pay 50% to start the project.'],
+  ['Sketch', 'Rough sketch in 1–4 days. Check the composition and request changes.'],
+  ['Render', 'Full render in 7–30 days after the sketch/lineart is approved.'],
+  ['Delivery', 'Pay the remaining 50%, then receive the final file.'],
 ]
 
 function Header({ onMenu, onHome, onBack, current }) {
@@ -282,49 +283,112 @@ function ArtworkModal({ art, onClose }) {
 }
 
 function CommissionPage({ navigate }) {
-  const [active, setActive] = useState(1)
-  const panel = commissionPanels[active]
-  const prev = () => setActive((active + commissionPanels.length - 1) % commissionPanels.length)
-  const next = () => setActive((active + 1) % commissionPanels.length)
+  const rows = Math.max(willNot.length, willDraw.length)
   return (
     <section className="page commission-page">
       <div className="page-intro commission-intro">
         <div><p className="eyebrow">MADE TO ORDER / BY LOYN</p><h1>Commission<span className="red-dot">.</span></h1></div>
-        <p className="intro-aside">Have a character or idea you want to bring to life? Here are the details before we start.</p>
+        <p className="intro-aside">Everything you need to know before ordering: prices, what I draw, and how it works.</p>
       </div>
-      <div className="commission-layout">
-        <button className="side-preview side-left" onClick={prev}>
-          <span className="side-label">{commissionPanels[(active + 2) % 3].title}</span>
-          <div className={`side-scribble side-art-${(active + 2) % 3}`}><DoodlePortrait /></div>
-          <span className="side-arrow"><ChevronLeft size={20} /></span>
-        </button>
-        <article className="active-panel" key={panel.title}>
-          <div className="panel-topline"><span>{panel.eyebrow}</span><span>LOYN / COMMISSIONS</span></div>
-          <div className="panel-title-row"><div><h2>{panel.title}</h2><p>{panel.subtitle}</p></div><span className="panel-count">0{active + 1}<i> / 03</i></span></div>
-          <div className="panel-content">
-            {panel.content.map(([title, body], index) => (
-              <div className="info-row" key={title}><span className="info-number">0{index + 1}</span><div><h3>{title}</h3><p>{body}</p></div></div>
-            ))}
-          </div>
-          <div className="panel-bottom"><span>PLEASE READ BEFORE ORDERING</span><span>✳</span></div>
-        </article>
-        <button className="side-preview side-right" onClick={next}>
-          <span className="side-label">{commissionPanels[(active + 1) % 3].title}</span>
-          <div className={`side-scribble side-art-${(active + 1) % 3}`}><DoodlePortrait /></div>
-          <span className="side-arrow"><ChevronRight size={20} /></span>
-        </button>
-      </div>
-      <div className="carousel-controls">
-        <button className="circle-button" onClick={prev} aria-label="Previous commission section"><ArrowLeft size={17} /></button>
-        <div className="carousel-dots">{commissionPanels.map((item, index) => <button key={item.title} className={index === active ? 'dot active' : 'dot'} onClick={() => setActive(index)} aria-label={`Show ${item.title}`} />)}</div>
-        <span className="carousel-status">0{active + 1} / 03</span>
-        <button className="circle-button" onClick={next} aria-label="Next commission section"><ArrowRight size={17} /></button>
-      </div>
+      <dl className="quick-facts">
+        {quickFacts.map(([label, value]) => (
+          <div key={label}><dt>{label}</dt><dd>{value}</dd></div>
+        ))}
+      </dl>
+
+      <nav className="jump-nav" aria-label="Sections">
+        <a href="#price">Price</a><a href="#notes">What I draw</a><a href="#process">How it works</a><a href="#terms">Terms</a>
+      </nav>
+
+      <section id="price" className="info-section">
+        <h2><span>01</span> Base price</h2>
+        <div className="table-scroll">
+          <table className="info-table">
+            <thead><tr><th>Part</th><th>Figure</th><th>IDR</th><th>USD</th></tr></thead>
+            <tbody>
+              {basePrice.map(([part, figure, oldIdr, idr, usd]) => (
+                <tr key={part}>
+                  <th scope="row">{part}</th>
+                  <td>{figure}</td>
+                  <td>{oldIdr && <s className="old-price">{oldIdr}</s>} <strong>{idr}</strong></td>
+                  <td>${usd}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Additional</h3>
+        <div className="table-scroll">
+          <table className="info-table">
+            <thead><tr><th>Detail</th><th>IDR</th><th>USD</th></tr></thead>
+            <tbody>
+              {additionalPrice.map(([detail, idr, usd]) => (
+                <tr key={detail}>
+                  <th scope="row">{detail}</th>
+                  <td className={idr === 'Free' ? 'is-free' : ''}>{idr}</td>
+                  <td className={usd === 'Free' ? 'is-free' : ''}>{/^\d/.test(usd) ? `$${usd}` : usd}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="table-note">Percentages (+40%, +80%) are added on top of the base price.</p>
+      </section>
+
+      <section id="notes" className="info-section">
+        <h2><span>02</span> What I draw</h2>
+        <div className="table-scroll">
+          <table className="info-table notes-table">
+            <thead><tr><th className="col-yes">Will draw</th><th className="col-no">Will NOT draw</th></tr></thead>
+            <tbody>
+              {Array.from({ length: rows }).map((_, i) => (
+                <tr key={i}><td>{willDraw[i] || ''}</td><td>{willNot[i] || ''}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="process" className="info-section">
+        <h2><span>03</span> How it works</h2>
+        <div className="table-scroll">
+          <table className="info-table">
+            <thead><tr><th>Step</th><th>What happens</th></tr></thead>
+            <tbody>
+              {steps.map(([name, text], i) => (
+                <tr key={name}><th scope="row"><span className="step-no">{i + 1}</span> {name}</th><td>{text}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="terms" className="info-section">
+        <h2><span>04</span> Terms of service</h2>
+        <div className="table-scroll">
+          <table className="info-table">
+            <thead><tr><th>Topic</th><th>Details</th></tr></thead>
+            <tbody>
+              {terms.map(([topic, detail]) => (
+                <tr key={topic}><th scope="row">{topic}</th><td>{detail}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       <div className="order-banner">
         <div><span className="eyebrow">READY WHEN YOU ARE</span><h2>Let's talk<br /><em>about your idea.</em></h2></div>
-        <a className="primary-button" href={VGEN_URL} target="_blank" rel="noreferrer">Order on VGen <ExternalLink size={16} /></a>
+        <div className="order-actions">
+          <a className="primary-button" href={VGEN_URL} target="_blank" rel="noreferrer">Order on VGen <ExternalLink size={16} /></a>
+          <a className="underlined-link" href={TRELLO_URL} target="_blank" rel="noreferrer">Check the queue <ExternalLink size={14} /></a>
+        </div>
       </div>
-      <footer className="site-footer"><span>LOYN ILLUST — COMMISSION SHEET</span><button onClick={() => navigate('main')}>BACK TO GALLERY ↑</button></footer>
+
+      <a className="order-sticky" href={VGEN_URL} target="_blank" rel="noreferrer">Order on VGen <ExternalLink size={15} /></a>
+
+      <footer className="site-footer"><span>LOYN — COMMISSION INFORMATION</span><button onClick={() => navigate('main')}>BACK TO GALLERY ↑</button></footer>
     </section>
   )
 }

@@ -1,0 +1,92 @@
+/* ===== Tempel di bagian bawah src/styles.css ===== */
+/* Boleh dihapus (sudah tidak dipakai): .commission-layout, .active-panel, .panel-*, .side-*,
+   .carousel-*, .circle-button, .dot, .info-row, .info-number, .price-note, .side-arrow */
+
+.commission-page { padding-bottom: 20px; }
+
+/* ringkasan cepat */
+.quick-facts {
+  display: grid; grid-template-columns: repeat(4, 1fr); margin: 0 0 22px;
+  border: 1px solid var(--line); background: #fbfaf7;
+}
+.quick-facts > div { padding: 16px 18px; border-right: 1px solid var(--line); }
+.quick-facts > div:last-child { border-right: 0; }
+.quick-facts dt { font: 10px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.quick-facts dd { margin: 6px 0 0; font-size: 17px; font-weight: 600; letter-spacing: -.02em; }
+
+.jump-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.jump-nav a {
+  font: 11px var(--mono); letter-spacing: .06em; text-transform: uppercase;
+  padding: 8px 14px; border: 1px solid var(--line); border-radius: 30px; color: var(--muted);
+  transition: background .2s, color .2s, border-color .2s;
+}
+.jump-nav a:hover { background: var(--red-pale); color: var(--ink); border-color: var(--red); }
+
+/* section */
+.info-section { padding: 44px 0 6px; scroll-margin-top: 90px; }
+.info-section h2 {
+  display: flex; align-items: baseline; gap: 14px; margin: 0 0 18px;
+  font-size: clamp(26px, 4vw, 38px); font-weight: 500; letter-spacing: -.05em;
+}
+.info-section h2 span { font: 12px var(--mono); color: var(--red); letter-spacing: .05em; }
+.info-section h3 { margin: 34px 0 14px; font-size: 20px; font-weight: 500; letter-spacing: -.03em; }
+
+/* tabel */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.info-table { width: 100%; border-collapse: collapse; background: #fbfaf7; border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.info-table th, .info-table td { padding: 15px 18px; text-align: left; vertical-align: top; font-size: 14px; line-height: 1.6; }
+.info-table thead th {
+  font: 10.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+  background: #f1efe8; border-bottom: 1.5px solid var(--ink); white-space: nowrap;
+}
+.info-table tbody tr { border-bottom: 1px solid var(--line); }
+.info-table tbody tr:last-child { border-bottom: 0; }
+.info-table tbody tr:hover { background: #f6f4ee; }
+.info-table tbody th { font-weight: 600; width: 32%; min-width: 130px; }
+.info-table td { color: #4a4a43; }
+.info-table strong { color: var(--ink); font-weight: 600; }
+.old-price { color: #a3a095; margin-right: 6px; }
+.is-free { color: #6d7c5c; font-weight: 600; }
+.table-note { margin: 10px 0 0; font-size: 12px; color: var(--muted); }
+
+.notes-table .col-yes { color: #5f6f4e; }
+.notes-table .col-no { color: var(--red); }
+.notes-table tbody th { width: auto; }
+.notes-table td { width: 50%; }
+.notes-table td:first-child::before { content: '✓'; color: #6d7c5c; margin-right: 10px; }
+.notes-table td:last-child::before { content: '✕'; color: var(--red); margin-right: 10px; }
+.notes-table td:empty::before { content: none; }
+
+.step-no {
+  display: inline-grid; place-items: center; width: 22px; height: 22px; margin-right: 8px;
+  border-radius: 50%; background: var(--red-pale); color: var(--red); font: 11px var(--mono);
+}
+
+/* banner order */
+.commission-page .order-banner { margin-top: 56px; }
+.order-actions { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; flex-shrink: 0; }
+.order-actions .primary-button { margin-top: 0; }
+.order-sticky { display: none; }
+
+@media (max-width: 760px) {
+  .quick-facts { grid-template-columns: 1fr 1fr; }
+  .quick-facts > div:nth-child(2) { border-right: 0; }
+  .quick-facts > div:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+  .info-section { padding-top: 34px; }
+  .info-table th, .info-table td { padding: 13px 12px; font-size: 14px; }
+  .info-table tbody th { width: auto; min-width: 0; }
+  /* tabel tahapan & aturan: ubah jadi susunan atas-bawah di HP */
+  #process .info-table thead, #terms .info-table thead { display: none; }
+  #process .info-table tr, #terms .info-table tr { display: block; padding: 12px 0; }
+  #process .info-table th, #process .info-table td,
+  #terms .info-table th, #terms .info-table td { display: block; padding: 2px 14px; }
+  .commission-page { padding-bottom: 70px; }
+  .order-actions { width: 100%; }
+  .order-actions .primary-button { width: 100%; }
+  .order-sticky {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    position: fixed; left: 5%; right: 5%; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); z-index: 25;
+    padding: 14px; background: var(--ink); color: var(--paper); font-size: 13px;
+    box-shadow: 0 6px 20px #0003;
+  }
+}
