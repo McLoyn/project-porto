@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import {
   ArrowDownRight, ArrowLeft, ArrowUpRight, ChevronLeft,
-  House, Menu, X, ExternalLink, Sparkles, Instagram, Twitter, Mail
+  Menu, X, ExternalLink, Sparkles, Instagram, Twitter, Mail
 } from 'lucide-react'
 
 const VGEN_URL = 'https://vgen.co/loyn'
+const CARRD_URL = 'https://loynn.carrd.co'
 const heroSocials = [
   ['X', 'https://x.com/loynillust', <Twitter size={16} strokeWidth={1.6} key="x" />],
   ['Instagram', 'https://www.instagram.com/loynillust', <Instagram size={16} strokeWidth={1.6} key="ig" />],
@@ -31,16 +32,16 @@ const artworks = [
 ]
 
 const quickFacts = [
-  ['Order via', 'VGen / direct (local)'],
+  ['Order via', <><a className="inline-link" href={VGEN_URL} target="_blank" rel="noreferrer">VGen</a> / direct (local)</>],
   ['Down payment', '50%'],
   ['Rough sketch', '1–4 days'],
   ['Full render', '7–30 days'],
 ]
 
 const basePrice = [
-  ['Bust up', '1', '50k', '40k', '15'],
-  ['Half body', '1', null, '80k', '20'],
-  ['Full body', '1', null, '120k', '40'],
+  ['Bust up', '1', '50k', '40k', '15', 'https://vgen.co/loyn/service/illustration-bust-up-/4c0df3fd-6328-42ef-8098-83d9447687aa'],
+  ['Half body', '1', null, '80k', '20', 'https://vgen.co/loyn/service/illustration-half-body-knee-up-/cf73821a-28f8-4d48-836a-e942a753f81d'],
+  ['Full body', '1', null, '120k', '40', 'https://vgen.co/loyn/service/illustration-full-body-/85d39179-8815-4559-b487-b5739a92c3d6'],
 ]
 
 const additionalPrice = [
@@ -71,7 +72,7 @@ const steps = [
   ['Delivery', 'Pay the remaining 50%, then receive the final file.'],
 ]
 
-function Header({ onMenu, onHome, onBack, current }) {
+function Header({ onMenu, onHome, onBack, onNavigate, current }) {
   return (
     <div className="topbar-wrap">
       <header className="topbar">
@@ -84,12 +85,25 @@ function Header({ onMenu, onHome, onBack, current }) {
             <span className="brand-dot" />
           </button>
         </div>
-        <div className="topbar-right">
+        <nav className="topbar-right" aria-label="Main">
           {current !== 'landing' && (
-            <button className="text-link" onClick={onBack}><ChevronLeft size={14} /> Back</button>
+            <button className="text-link" onClick={onBack} aria-label="Back">
+              <ChevronLeft size={14} /><span className="hide-sm">Back</span>
+            </button>
           )}
-          <button className="text-link" onClick={onHome}><House size={14} /> Home</button>
-        </div>
+          <button
+            className={`nav-link ${current === 'commission' ? 'active' : ''}`}
+            onClick={() => onNavigate('commission')}
+          >
+            Commission
+          </button>
+          <a className="nav-link hide-sm" href={TRELLO_URL} target="_blank" rel="noreferrer">
+            Queue <ArrowUpRight size={13} />
+          </a>
+          <a className="nav-cta hide-sm" href={VGEN_URL} target="_blank" rel="noreferrer">
+            Order on VGen <ExternalLink size={13} />
+          </a>
+        </nav>
       </header>
     </div>
   )
@@ -98,11 +112,10 @@ function Header({ onMenu, onHome, onBack, current }) {
 function MenuDrawer({ open, onClose, navigate }) {
   if (!open) return null
   const links = [
-    ['Home / Landing', 'landing'],
+    ['Home', 'landing'],
     ['Gallery', 'main'],
-    ['About me & Contact', 'about'],
-    ['Commission', 'commission'],
-    ['Queue', 'queue'],
+    ['Commission info', 'commission'],
+    ['About & Contact', 'about'],
   ]
   return (
     <div className="drawer-scrim" onMouseDown={onClose}>
@@ -111,7 +124,14 @@ function MenuDrawer({ open, onClose, navigate }) {
           <span className="eyebrow">LOYN / INDEX</span>
           <button className="icon-button" onClick={onClose} aria-label="Close menu"><X size={20} /></button>
         </div>
-        <p className="drawer-note">A small collection of drawings, ideas, and commission information.</p>
+        <div className="drawer-cta">
+          <a className="drawer-order" href={VGEN_URL} target="_blank" rel="noreferrer">
+            <span>Order on VGen</span><ExternalLink size={16} />
+          </a>
+          <a className="drawer-queue" href={TRELLO_URL} target="_blank" rel="noreferrer">
+            <span>Commission queue</span><ArrowUpRight size={16} />
+          </a>
+        </div>
         <nav className="drawer-links">
           {links.map(([label, page], index) => (
             <button key={page} onClick={() => { navigate(page); onClose() }}>
@@ -119,6 +139,10 @@ function MenuDrawer({ open, onClose, navigate }) {
             </button>
           ))}
         </nav>
+        <a className="drawer-simple" href={CARRD_URL} target="_blank" rel="noreferrer">
+          <span><strong>Simple mode</strong><small>Plain, fast version of this site</small></span>
+          <ExternalLink size={15} />
+        </a>
         <div className="drawer-bottom">HANDMADE WITH CARE <span>✳</span></div>
       </aside>
     </div>
@@ -153,7 +177,10 @@ function Landing({ navigate }) {
           <p className="eyebrow">WELCOME TO LOYN'S LITTLE CORNER</p>
           <h1>Drawn from<br /><span>daydreams.</span></h1>
           <p className="hero-description">A collection of characters, unfinished thoughts, and little things I wanted to keep.</p>
-          <button className="primary-button" onClick={() => navigate('main')}>Enter the gallery <ArrowDownRight size={17} /></button>
+          <div className="hero-actions">
+            <button className="primary-button" onClick={() => navigate('main')}>Enter the gallery <ArrowDownRight size={17} /></button>
+            <button className="ghost-button" onClick={() => navigate('commission')}>Commission info <ArrowUpRight size={16} /></button>
+          </div>
           <div className="hero-socials">
             {heroSocials.map(([label, href, icon]) => (
               <a key={label} className="social-circle" href={href} target="_blank" rel="noreferrer" aria-label={label} title={label}>{icon}</a>
@@ -306,9 +333,13 @@ function CommissionPage({ navigate }) {
           <table className="info-table">
             <thead><tr><th>Part</th><th>Figure</th><th>IDR</th><th>USD</th></tr></thead>
             <tbody>
-              {basePrice.map(([part, figure, oldIdr, idr, usd]) => (
-                <tr key={part}>
-                  <th scope="row">{part}</th>
+              {basePrice.map(([part, figure, oldIdr, idr, usd, href]) => (
+                <tr key={part} className="row-link">
+                  <th scope="row">
+                    <a className="row-link-anchor" href={href} target="_blank" rel="noreferrer" aria-label={`Order ${part} on VGen`}>
+                      {part} <ArrowUpRight size={14} />
+                    </a>
+                  </th>
                   <td>{figure}</td>
                   <td>{oldIdr && <s className="old-price">{oldIdr}</s>} <strong>{idr}</strong></td>
                   <td>${usd}</td>
@@ -448,7 +479,7 @@ export default function App() {
   return (
     <div className="site-shell">
       <div className="paper-grain" aria-hidden="true" />
-      <Header onMenu={() => setMenuOpen(true)} onHome={() => navigate('landing')} onBack={goBack} current={page} />
+      <Header onMenu={() => setMenuOpen(true)} onHome={() => navigate('landing')} onBack={goBack} onNavigate={navigate} current={page} />
       <main className="main-content" key={transitionKey}>
         <div className="page-transition">
           {page === 'landing' && <Landing navigate={navigate} />}
