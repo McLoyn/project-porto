@@ -149,7 +149,7 @@ function Landing({ navigate }) {
         <div className="portrait-stage">
           <div className="portrait-note note-top">fig. 01 — a familiar face</div>
           <div className="portrait-paper">
-             <img className="hero-img" src="/art/01.jpg" alt="Loyn artwork" />
+             <img className="hero-img" src="/art/a1.jpg" alt="Loyn artwork" />
              <span className="portrait-caption">a study in progress</span>
           </div>
           <span className="orbit orbit-one" />
