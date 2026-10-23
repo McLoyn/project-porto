@@ -72,6 +72,103 @@ const steps = [
   ['Delivery', 'Pay the remaining 50%, then receive the final file.'],
 ]
 
+const bookContacts = [
+  ['X', 'https://x.com/loynillust'],
+  ['Instagram', 'https://www.instagram.com/loynillust'],
+  ['Email', 'mailto:ozloynn@gmail.com'],
+]
+
+const fmtUsd = (value) => (/^\d/.test(value) ? `$${value}` : value)
+
+function BaseTable() {
+  return (
+    <div className="table-scroll">
+      <table className="info-table">
+        <thead><tr><th>Part</th><th>Figure</th><th>IDR</th><th>USD</th></tr></thead>
+        <tbody>
+          {basePrice.map(([part, figure, oldIdr, idr, usd, href]) => (
+            <tr key={part} className="row-link">
+              <th scope="row">
+                <a className="row-link-anchor" href={href} target="_blank" rel="noreferrer" aria-label={`Order ${part} on VGen`}>
+                  {part} <ArrowUpRight size={14} />
+                </a>
+              </th>
+              <td>{figure}</td>
+              <td>{oldIdr && <s className="old-price">{oldIdr}</s>} <strong>{idr}</strong></td>
+              <td>${usd}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function ExtraTable() {
+  return (
+    <div className="table-scroll">
+      <table className="info-table">
+        <thead><tr><th>Detail</th><th>IDR</th><th>USD</th></tr></thead>
+        <tbody>
+          {additionalPrice.map(([detail, idr, usd]) => (
+            <tr key={detail}>
+              <th scope="row">{detail}</th>
+              <td className={idr === 'Free' ? 'is-free' : ''}>{idr}</td>
+              <td className={usd === 'Free' ? 'is-free' : ''}>{fmtUsd(usd)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function ScopeTable() {
+  const rows = Math.max(willNot.length, willDraw.length)
+  return (
+    <div className="table-scroll">
+      <table className="info-table notes-table">
+        <thead><tr><th className="col-yes">Will draw</th><th className="col-no">Will NOT draw</th></tr></thead>
+        <tbody>
+          {Array.from({ length: rows }).map((_, index) => (
+            <tr key={index}><td>{willDraw[index] || ''}</td><td>{willNot[index] || ''}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function StepsTable() {
+  return (
+    <div className="table-scroll">
+      <table className="info-table stack-sm">
+        <thead><tr><th>Step</th><th>What happens</th></tr></thead>
+        <tbody>
+          {steps.map(([name, text], index) => (
+            <tr key={name}><th scope="row"><span className="step-no">{index + 1}</span> {name}</th><td>{text}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function TermsTable() {
+  return (
+    <div className="table-scroll">
+      <table className="info-table stack-sm">
+        <thead><tr><th>Topic</th><th>Details</th></tr></thead>
+        <tbody>
+          {terms.map(([topic, detail]) => (
+            <tr key={topic}><th scope="row">{topic}</th><td>{detail}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
 function Header({ onMenu, onHome, onBack, onNavigate, current }) {
   return (
     <div className="topbar-wrap">
@@ -464,106 +561,195 @@ function ArtworkModal({ art, onClose }) {
   )
 }
 
-function CommissionPage({ navigate }) {
-  const rows = Math.max(willNot.length, willDraw.length)
+function Leaf({ eyebrow, title, children }) {
   return (
-    <section className="page commission-page">
-      <div className="page-intro commission-intro">
-        <div><p className="eyebrow">MADE TO ORDER / BY LOYN</p><h1>Commission<span className="red-dot">.</span></h1></div>
-        <p className="intro-aside">Everything you need to know before ordering: prices, what I draw, and how it works.</p>
+    <div className="leaf">
+      <div className="leaf-scroll">
+        <p className="eyebrow">{eyebrow}</p>
+        <h2 className="leaf-title">{title}</h2>
+        {children}
       </div>
+    </div>
+  )
+}
+
+function CoverPage({ onOpen }) {
+  const art = artworks[0]
+  return (
+    <button className="cover" onClick={onOpen} aria-label="Open the commission book">
+      <span className="cover-eyebrow">MADE TO ORDER ✳ BY LOYN</span>
+      <span className="cover-frame">
+        {art?.thumb ? <img src={art.thumb} alt="" draggable="false" /> : <DoodlePortrait />}
+      </span>
+      <span className="cover-title">Commission<i>.</i></span>
+      <span className="cover-sub">prices · scope · terms</span>
+      <span className="cover-open">Open <ArrowRight size={15} /></span>
+    </button>
+  )
+}
+
+const WelcomePage = () => (
+  <Leaf eyebrow="BEFORE YOU ORDER" title="Quick facts">
+    <dl className="facts-list">
+      {quickFacts.map(([label, value]) => (
+        <div key={label}><dt>{label}</dt><dd>{value}</dd></div>
+      ))}
+    </dl>
+    <p className="leaf-note">Turn the page for prices. Tap any price row to open that service on VGen.</p>
+  </Leaf>
+)
+
+const BasePage = () => (
+  <Leaf eyebrow="01 / INVESTMENT" title="Base price">
+    <BaseTable />
+    <p className="table-note">Tap a row to order that type on VGen.</p>
+  </Leaf>
+)
+
+const ExtraPage = () => (
+  <Leaf eyebrow="02 / ADD-ONS" title="Additional">
+    <ExtraTable />
+    <p className="table-note">Percentages are added on top of the base price.</p>
+  </Leaf>
+)
+
+const ScopePage = () => (
+  <Leaf eyebrow="03 / SCOPE" title="What I draw"><ScopeTable /></Leaf>
+)
+
+const ProcessPage = () => (
+  <Leaf eyebrow="04 / PROCESS" title="How it works"><StepsTable /></Leaf>
+)
+
+const TermsPage = () => (
+  <Leaf eyebrow="05 / PLEASE READ" title="Terms of service"><TermsTable /></Leaf>
+)
+
+const OrderPage = () => (
+  <Leaf eyebrow="READY WHEN YOU ARE" title="Let’s talk about your idea.">
+    <div className="order-links">
+      <a className="primary-button" href={VGEN_URL} target="_blank" rel="noreferrer">Order on VGen <ExternalLink size={16} /></a>
+      <a className="underlined-link" href={TRELLO_URL} target="_blank" rel="noreferrer">Check the queue <ExternalLink size={14} /></a>
+    </div>
+    <p className="leaf-note">Questions first? Find me here:</p>
+    <ul className="contact-list">
+      {bookContacts.map(([label, href]) => (
+        <li key={label}><a className="underlined-link" href={href} target="_blank" rel="noreferrer">{label} <ExternalLink size={13} /></a></li>
+      ))}
+    </ul>
+  </Leaf>
+)
+
+const sheets = [
+  [CoverPage, WelcomePage],
+  [BasePage, ExtraPage],
+  [ScopePage, ProcessPage],
+  [TermsPage, OrderPage],
+]
+const spreadLabels = ['Cover', 'Price', 'Add-ons & scope', 'Process & terms', 'Order']
+
+function Book() {
+  const [index, setIndex] = useState(0)
+  const count = sheets.length
+  const go = (nextIndex) => setIndex(Math.max(0, Math.min(count, nextIndex)))
+  const onKeyDown = (event) => {
+    if (event.key === 'ArrowRight') go(index + 1)
+    if (event.key === 'ArrowLeft') go(index - 1)
+  }
+
+  return (
+    <div className="book-wrap" onKeyDown={onKeyDown}>
+      <div className="book" data-closed={index === 0}>
+        <div className="book-base" aria-hidden="true"><span>thank you ✳</span><small>LOYN ILLUST</small></div>
+        {sheets.map(([Front, Back], sheetIndex) => {
+          const flipped = sheetIndex < index
+          return (
+            <div key={sheetIndex} className={`sheet ${flipped ? 'flipped' : ''}`} style={{ zIndex: flipped ? sheetIndex + 1 : count - sheetIndex }}>
+              <div className="face front" inert={sheetIndex === index ? undefined : ''}>
+                {sheetIndex === 0 ? <Front onOpen={() => go(1)} /> : <Front />}
+                {sheetIndex > 0 && (
+                  <button className="corner corner-next" onClick={() => go(sheetIndex + 1)} aria-label="Next page">Next <ArrowRight size={14} /></button>
+                )}
+              </div>
+              <div className="face back" inert={sheetIndex === index - 1 ? undefined : ''}>
+                <Back />
+                <button className="corner corner-prev" onClick={() => go(sheetIndex)} aria-label="Previous page"><ArrowLeft size={14} /> Back</button>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+      <div className="book-controls">
+        <button className="circle-button" onClick={() => go(index - 1)} disabled={index === 0} aria-label="Previous spread"><ArrowLeft size={17} /></button>
+        <div className="spread-chips">
+          {spreadLabels.map((label, chipIndex) => (
+            <button key={label} className={chipIndex === index ? 'active' : ''} aria-current={chipIndex === index ? 'true' : undefined} onClick={() => go(chipIndex)}>{label}</button>
+          ))}
+        </div>
+        <button className="circle-button" onClick={() => go(index + 1)} disabled={index === count} aria-label="Next spread"><ArrowRight size={17} /></button>
+      </div>
+    </div>
+  )
+}
+
+const linearPages = [CoverPage, WelcomePage, BasePage, ExtraPage, ScopePage, ProcessPage, TermsPage, OrderPage]
+
+function MobileBook() {
+  const [pageIndex, setPageIndex] = useState(0)
+  const [direction, setDirection] = useState(1)
+  const touchStartX = useRef(null)
+  const go = (nextIndex) => {
+    const nextPage = Math.max(0, Math.min(linearPages.length - 1, nextIndex))
+    setDirection(nextPage >= pageIndex ? 1 : -1)
+    setPageIndex(nextPage)
+  }
+  const Page = linearPages[pageIndex]
+
+  return (
+    <div
+      className="m-book"
+      onTouchStart={(event) => { touchStartX.current = event.touches[0].clientX }}
+      onTouchEnd={(event) => {
+        if (touchStartX.current === null) return
+        const deltaX = event.changedTouches[0].clientX - touchStartX.current
+        touchStartX.current = null
+        if (Math.abs(deltaX) > 60) go(pageIndex + (deltaX < 0 ? 1 : -1))
+      }}
+    >
+      <div className={`m-page ${direction > 0 ? 'from-right' : 'from-left'}`} key={pageIndex}>
+        {pageIndex === 0 ? <Page onOpen={() => go(1)} /> : <Page />}
+      </div>
+      <div className="book-controls">
+        <button className="circle-button" onClick={() => go(pageIndex - 1)} disabled={pageIndex === 0} aria-label="Previous page"><ArrowLeft size={17} /></button>
+        <span className="carousel-status">{pageIndex + 1} / {linearPages.length}</span>
+        <button className="circle-button" onClick={() => go(pageIndex + 1)} disabled={pageIndex === linearPages.length - 1} aria-label="Next page"><ArrowRight size={17} /></button>
+      </div>
+      <p className="drag-hint">swipe to turn the page ✳</p>
+    </div>
+  )
+}
+
+function CommissionList() {
+  return (
+    <>
       <dl className="quick-facts">
         {quickFacts.map(([label, value]) => (
           <div key={label}><dt>{label}</dt><dd>{value}</dd></div>
         ))}
       </dl>
-
       <nav className="jump-nav" aria-label="Sections">
         <a href="#price">Price</a><a href="#notes">What I draw</a><a href="#process">How it works</a><a href="#terms">Terms</a>
       </nav>
-
       <section id="price" className="info-section">
         <h2><span>01</span> Base price</h2>
-        <div className="table-scroll">
-          <table className="info-table">
-            <thead><tr><th>Part</th><th>Figure</th><th>IDR</th><th>USD</th></tr></thead>
-            <tbody>
-              {basePrice.map(([part, figure, oldIdr, idr, usd, href]) => (
-                <tr key={part} className="row-link">
-                  <th scope="row">
-                    <a className="row-link-anchor" href={href} target="_blank" rel="noreferrer" aria-label={`Order ${part} on VGen`}>
-                      {part} <ArrowUpRight size={14} />
-                    </a>
-                  </th>
-                  <td>{figure}</td>
-                  <td>{oldIdr && <s className="old-price">{oldIdr}</s>} <strong>{idr}</strong></td>
-                  <td>${usd}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
+        <BaseTable />
         <h3>Additional</h3>
-        <div className="table-scroll">
-          <table className="info-table">
-            <thead><tr><th>Detail</th><th>IDR</th><th>USD</th></tr></thead>
-            <tbody>
-              {additionalPrice.map(([detail, idr, usd]) => (
-                <tr key={detail}>
-                  <th scope="row">{detail}</th>
-                  <td className={idr === 'Free' ? 'is-free' : ''}>{idr}</td>
-                  <td className={usd === 'Free' ? 'is-free' : ''}>{/^\d/.test(usd) ? `$${usd}` : usd}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <ExtraTable />
         <p className="table-note">Percentages (+40%, +80%) are added on top of the base price.</p>
       </section>
-
-      <section id="notes" className="info-section">
-        <h2><span>02</span> What I draw</h2>
-        <div className="table-scroll">
-          <table className="info-table notes-table">
-            <thead><tr><th className="col-yes">Will draw</th><th className="col-no">Will NOT draw</th></tr></thead>
-            <tbody>
-              {Array.from({ length: rows }).map((_, i) => (
-                <tr key={i}><td>{willDraw[i] || ''}</td><td>{willNot[i] || ''}</td></tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section id="process" className="info-section">
-        <h2><span>03</span> How it works</h2>
-        <div className="table-scroll">
-          <table className="info-table">
-            <thead><tr><th>Step</th><th>What happens</th></tr></thead>
-            <tbody>
-              {steps.map(([name, text], i) => (
-                <tr key={name}><th scope="row"><span className="step-no">{i + 1}</span> {name}</th><td>{text}</td></tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section id="terms" className="info-section">
-        <h2><span>04</span> Terms of service</h2>
-        <div className="table-scroll">
-          <table className="info-table">
-            <thead><tr><th>Topic</th><th>Details</th></tr></thead>
-            <tbody>
-              {terms.map(([topic, detail]) => (
-                <tr key={topic}><th scope="row">{topic}</th><td>{detail}</td></tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
+      <section id="notes" className="info-section"><h2><span>02</span> What I draw</h2><ScopeTable /></section>
+      <section id="process" className="info-section"><h2><span>03</span> How it works</h2><StepsTable /></section>
+      <section id="terms" className="info-section"><h2><span>04</span> Terms of service</h2><TermsTable /></section>
       <div className="order-banner">
         <div><span className="eyebrow">READY WHEN YOU ARE</span><h2>Let's talk<br /><em>about your idea.</em></h2></div>
         <div className="order-actions">
@@ -571,9 +757,37 @@ function CommissionPage({ navigate }) {
           <a className="underlined-link" href={TRELLO_URL} target="_blank" rel="noreferrer">Check the queue <ExternalLink size={14} /></a>
         </div>
       </div>
-
       <a className="order-sticky" href={VGEN_URL} target="_blank" rel="noreferrer">Order on VGen <ExternalLink size={15} /></a>
+    </>
+  )
+}
 
+function useIsWide() {
+  const query = '(min-width: 900px)'
+  const [wide, setWide] = useState(() => window.matchMedia(query).matches)
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(query)
+    const onChange = (event) => setWide(event.matches)
+    mediaQuery.addEventListener('change', onChange)
+    return () => mediaQuery.removeEventListener('change', onChange)
+  }, [])
+  return wide
+}
+
+function CommissionPage({ navigate }) {
+  const wide = useIsWide()
+  const [view, setView] = useState('book')
+  return (
+    <section className="page commission-page">
+      <div className="page-intro commission-intro">
+        <div><p className="eyebrow">MADE TO ORDER / BY LOYN</p><h1>Commission<span className="red-dot">.</span></h1></div>
+        <p className="intro-aside">Everything you need to know before ordering: prices, what I draw, and how it works.</p>
+      </div>
+      <div className="view-toggle" role="group" aria-label="Choose how to read">
+        <button aria-pressed={view === 'book'} onClick={() => setView('book')}>Book</button>
+        <button aria-pressed={view === 'list'} onClick={() => setView('list')}>List</button>
+      </div>
+      {view === 'list' ? <CommissionList /> : wide ? <Book /> : <MobileBook />}
       <footer className="site-footer"><span>LOYN — COMMISSION INFORMATION</span><button onClick={() => navigate('main')}>BACK TO GALLERY ↑</button></footer>
     </section>
   )
