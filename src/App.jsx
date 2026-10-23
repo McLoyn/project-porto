@@ -10,7 +10,7 @@ const heroSocials = [
   ['X', 'https://x.com/loynillust', <Twitter size={16} strokeWidth={1.6} key="x" />],
   ['Instagram', 'https://www.instagram.com/loynillust', <Instagram size={16} strokeWidth={1.6} key="ig" />],
   ['Email', 'mailto:ozloynn@gmail.com', <Mail size={16} strokeWidth={1.6} key="mail" />],
-  ['VGen', VGEN_URL, <img className="social-img" src="/icons/vgen.png" alt="" key="vgen" />],
+  ['VGen', VGEN_URL, <span className="social-mask" key="vgen" />],
 ]
 const TRELLO_URL = 'https://trello.com/b/j8EIfMRz/loyn-workspace'
 const socials = [
