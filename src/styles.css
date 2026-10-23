@@ -54,6 +54,7 @@ a { color: inherit; text-decoration: none; }
 .social-circle { width: 38px; height: 38px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; color: var(--ink); transition: background .2s, border-color .2s, transform .2s; }
 .social-circle:hover { background: var(--red-pale); border-color: var(--red); transform: translateY(-2px); }
 .vgen-letter { font: 700 16px var(--hand); line-height: 1; }
+.social-img { width: 18px; height: 18px; object-fit: contain; }
 .portrait-stage { min-height: 440px; position: relative; display: grid; place-items: center; }
 .portrait-paper { width: min(100%, 390px); height: 400px; position: relative; background: var(--surface-2); border: 1px solid var(--line-strong); display: grid; place-items: center; transform: rotate(1.1deg); box-shadow: 12px 13px 0 var(--shadow-block); }
 .portrait-paper::before { content: ''; position: absolute; inset: 8px; border: 1px solid var(--line-strong); }
