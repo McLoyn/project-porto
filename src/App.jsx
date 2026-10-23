@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowDownRight, ArrowLeft, ArrowRight, ArrowUpRight, ChevronLeft,
-  Menu, X, ExternalLink, Sparkles, Instagram, Twitter, Mail
+  Menu, X, ExternalLink, Sparkles, Instagram, Twitter, Mail, Moon, Sun
 } from 'lucide-react'
 
 const VGEN_URL = 'https://vgen.co/loyn'
@@ -169,7 +169,7 @@ function TermsTable() {
   )
 }
 
-function Header({ onMenu, onHome, onBack, onNavigate, current }) {
+function Header({ onMenu, onHome, onBack, onNavigate, theme, onToggleTheme, current }) {
   return (
     <div className="topbar-wrap">
       <header className="topbar">
@@ -200,6 +200,15 @@ function Header({ onMenu, onHome, onBack, onNavigate, current }) {
           <a className="nav-cta hide-sm" href={VGEN_URL} target="_blank" rel="noreferrer">
             Order on VGen <ExternalLink size={13} />
           </a>
+          <button
+            className="theme-toggle"
+            onClick={onToggleTheme}
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            aria-pressed={theme === 'dark'}
+            title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
+          >
+            {theme === 'dark' ? <Sun size={17} strokeWidth={1.6} /> : <Moon size={17} strokeWidth={1.6} />}
+          </button>
         </nav>
       </header>
     </div>
@@ -823,11 +832,35 @@ function InfoPage({ type, navigate }) {
   )
 }
 
+function useTheme() {
+  const [theme, setTheme] = useState(() => document.documentElement.dataset.theme || 'light')
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+    document.querySelector('meta[name="theme-color"]')
+      ?.setAttribute('content', theme === 'dark' ? '#15110f' : '#f4eee2')
+    try {
+      localStorage.setItem('loyn-theme', theme)
+    } catch (error) {
+      console.warn('Unable to save the theme preference.', error)
+    }
+  }, [theme])
+
+  const toggleTheme = () => {
+    const root = document.documentElement
+    root.classList.add('theme-anim')
+    window.setTimeout(() => root.classList.remove('theme-anim'), 450)
+    setTheme((currentTheme) => currentTheme === 'dark' ? 'light' : 'dark')
+  }
+
+  return [theme, toggleTheme]
+}
+
 export default function App() {
   const [page, setPage] = useState('landing')
   const [previousPage, setPreviousPage] = useState('landing')
   const [menuOpen, setMenuOpen] = useState(false)
   const [transitionKey, setTransitionKey] = useState(0)
+  const [theme, toggleTheme] = useTheme()
 
   const navigate = (nextPage) => {
     if (nextPage === page) return
@@ -848,7 +881,7 @@ export default function App() {
   return (
     <div className="site-shell">
       <div className="paper-grain" aria-hidden="true" />
-      <Header onMenu={() => setMenuOpen(true)} onHome={() => navigate('landing')} onBack={goBack} onNavigate={navigate} current={page} />
+      <Header onMenu={() => setMenuOpen(true)} onHome={() => navigate('landing')} onBack={goBack} onNavigate={navigate} theme={theme} onToggleTheme={toggleTheme} current={page} />
       <main className="main-content" key={transitionKey}>
         <div className="page-transition">
           {page === 'landing' && <Landing navigate={navigate} />}
