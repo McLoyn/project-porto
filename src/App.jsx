@@ -21,14 +21,20 @@ const socials = [
   ['VGen', VGEN_URL],
 ]
 
+// template:
+// { title: 'Title', kind: 'what', tone: 'artwork-', note: 'digital painting', src: '/art/.jpg', thumb: '/art/thumb/.jpg' },
+
 const artworks = [
-  { title: 'The Frame',      kind: 'Illustration',    tone: 'artwork-one',   note: 'digital painting', src: '/art/01.jpg', thumb: '/art/thumb/01.jpg' },
-  { title: 'Shattered',      kind: 'Illustration',    tone: 'artwork-two',   note: 'digital',          src: '/art/02.jpg', thumb: '/art/thumb/02.jpg' },
+  { title: 'Blue', kind: 'Scene Study', tone: 'artwork-three', note: 'digital painting', src: '/art/15.jpg', thumb: '/art/thumb/15.jpg' },
+  { title: 'First Commission', kind: 'Illustration Commission', tone: 'artwork-one', note: 'digital painting', src: '/art/08.jpg', thumb: '/art/thumb/08.jpg' },
+  { title: 'Who?',      kind: 'Illustration',    tone: 'artwork-one',   note: 'digital painting', src: '/art/01.jpg', thumb: '/art/thumb/01.jpg' },
+  { title: 'Different World',      kind: 'Illustration',    tone: 'artwork-two',   note: 'digital',          src: '/art/02.jpg', thumb: '/art/thumb/02.jpg' },
   { title: 'Training',           kind: 'Character study', tone: 'artwork-three', note: 'digital sketch',   src: '/art/03.jpg', thumb: '/art/thumb/03.jpg' },
   { title: 'Crow & Bridge',  kind: 'Character design', tone: 'artwork-four', note: 'digital',          src: '/art/04.jpg', thumb: '/art/thumb/04.jpg' },
-  { title: 'Lying in Grass', kind: 'Illustration',    tone: 'artwork-five',  note: 'digital',          src: '/art/05.jpg', thumb: '/art/thumb/05.jpg' },
-  { title: 'Golden Field',   kind: 'Illustration',    tone: 'artwork-six',   note: 'digital painting', src: '/art/06.jpg', thumb: '/art/thumb/06.jpg' },
-  { title: 'Lady Vertin',    kind: 'Portrait',        tone: 'artwork-one',   note: 'digital painting', src: '/art/07.jpg', thumb: '/art/thumb/07.jpg' },
+  { title: 'Lying in Grass', kind: 'Study',    tone: 'artwork-five',  note: 'digital',          src: '/art/05.jpg', thumb: '/art/thumb/05.jpg' },
+  { title: 'Golden Field',   kind: 'Redraw Study',    tone: 'artwork-six',   note: 'digital painting', src: '/art/06.jpg', thumb: '/art/thumb/06.jpg' },
+  { title: 'Lady Vertin',    kind: 'Paint Study',        tone: 'artwork-one',   note: 'digital painting', src: '/art/07.jpg', thumb: '/art/thumb/07.jpg' },
+  { title: 'Lost', kind: 'Illustration', tone: 'artwork-one', note: 'digital painting', src: '/art/13.jpg', thumb: '/art/thumb/13.jpg' },
 ]
 
 const quickFacts = [
