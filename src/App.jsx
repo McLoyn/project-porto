@@ -855,6 +855,96 @@ function useTheme() {
   return [theme, toggleTheme]
 }
 
+function CustomCursor() {
+  const cursorRef = useRef(null)
+
+  useEffect(() => {
+    const cursor = cursorRef.current
+    const root = document.documentElement
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    let x = -100
+    let y = -100
+    let cursorX = -100
+    let cursorY = -100
+    let frame = 0
+    let visible = false
+
+    const animate = () => {
+      const smoothing = reduceMotion ? 1 : 0.22
+      cursorX += (x - cursorX) * smoothing
+      cursorY += (y - cursorY) * smoothing
+      cursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0)`
+
+      if (Math.abs(x - cursorX) < 0.1 && Math.abs(y - cursorY) < 0.1) {
+        cursorX = x
+        cursorY = y
+        cursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0)`
+        frame = 0
+      } else {
+        frame = requestAnimationFrame(animate)
+      }
+    }
+
+    const hide = () => {
+      root.classList.remove('has-cursor')
+      cursor.classList.remove('on', 'down')
+      visible = false
+      if (frame) cancelAnimationFrame(frame)
+      frame = 0
+    }
+
+    const onMove = (event) => {
+      if (event.pointerType !== 'mouse') {
+        hide()
+        return
+      }
+
+      x = event.clientX
+      y = event.clientY
+      if (!visible) {
+        cursorX = x
+        cursorY = y
+        root.classList.add('has-cursor')
+        cursor.classList.add('on')
+        visible = true
+      }
+      if (!frame) frame = requestAnimationFrame(animate)
+
+      const target = event.target
+      const link = target.closest?.('a, button, [role="button"], summary, label, .row-link, .hung-paper')
+      const drag = !link && target.closest?.('.rope-stage')
+      cursor.dataset.state = link ? 'link' : drag ? 'drag' : ''
+    }
+
+    const onDown = (event) => {
+      if (event.pointerType === 'mouse') cursor.classList.add('down')
+    }
+    const onUp = () => cursor.classList.remove('down')
+
+    window.addEventListener('pointermove', onMove, { passive: true })
+    window.addEventListener('pointerdown', onDown)
+    window.addEventListener('pointerup', onUp)
+    window.addEventListener('pointercancel', onUp)
+    root.addEventListener('mouseleave', hide)
+
+    return () => {
+      if (frame) cancelAnimationFrame(frame)
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerdown', onDown)
+      window.removeEventListener('pointerup', onUp)
+      window.removeEventListener('pointercancel', onUp)
+      root.removeEventListener('mouseleave', hide)
+      root.classList.remove('has-cursor')
+    }
+  }, [])
+
+  return (
+    <div className="cursor" ref={cursorRef} aria-hidden="true">
+      <span className="cursor-dot"><span className="cursor-label">drag</span></span>
+    </div>
+  )
+}
+
 export default function App() {
   const [page, setPage] = useState('landing')
   const [previousPage, setPreviousPage] = useState('landing')
@@ -891,6 +981,7 @@ export default function App() {
         </div>
       </main>
       <MenuDrawer open={menuOpen} onClose={() => setMenuOpen(false)} navigate={navigate} />
+      <CustomCursor />
     </div>
   )
 }
