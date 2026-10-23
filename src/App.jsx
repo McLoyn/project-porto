@@ -837,7 +837,7 @@ function useTheme() {
   useEffect(() => {
     document.documentElement.dataset.theme = theme
     document.querySelector('meta[name="theme-color"]')
-      ?.setAttribute('content', theme === 'dark' ? '#15110f' : '#f4eee2')
+      ?.setAttribute('content', theme === 'dark' ? '#0f161b' : '#f4eee2')
     try {
       localStorage.setItem('loyn-theme', theme)
     } catch (error) {
@@ -862,12 +862,18 @@ function CustomCursor() {
     const cursor = cursorRef.current
     const root = document.documentElement
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const userAgent = navigator.userAgent
+    const chromium = /(Chrome|Chromium|Edg|SamsungBrowser)\//.test(userAgent) && !/CriOS|FxiOS/.test(userAgent)
     let x = -100
     let y = -100
     let cursorX = -100
     let cursorY = -100
     let frame = 0
     let visible = false
+
+    if (chromium && window.CSS?.supports?.('backdrop-filter', 'url(#cursor-gradmap)')) {
+      cursor.classList.add('gradmap')
+    }
 
     const animate = () => {
       const smoothing = reduceMotion ? 1 : 0.22
@@ -888,6 +894,7 @@ function CustomCursor() {
     const hide = () => {
       root.classList.remove('has-cursor')
       cursor.classList.remove('on', 'down')
+      cursor.dataset.state = ''
       visible = false
       if (frame) cancelAnimationFrame(frame)
       frame = 0
@@ -935,13 +942,44 @@ function CustomCursor() {
       window.removeEventListener('pointercancel', onUp)
       root.removeEventListener('mouseleave', hide)
       root.classList.remove('has-cursor')
+      cursor.classList.remove('gradmap')
     }
   }, [])
 
   return (
-    <div className="cursor" ref={cursorRef} aria-hidden="true">
-      <span className="cursor-dot"><span className="cursor-label">drag</span></span>
-    </div>
+    <>
+      <svg className="cursor-defs" width="0" height="0" aria-hidden="true" focusable="false">
+        <filter id="cursor-gradmap" colorInterpolationFilters="sRGB" x="0" y="0" width="100%" height="100%">
+          <feColorMatrix
+            type="matrix"
+            values="0.2126 0.7152 0.0722 0 0  0.2126 0.7152 0.0722 0 0  0.2126 0.7152 0.0722 0 0  0 0 0 1 0"
+          />
+          <feComponentTransfer>
+            <feFuncR type="table" tableValues="0.06 0.38 0.90 1.00" />
+            <feFuncG type="table" tableValues="0.02 0.08 0.38 0.80" />
+            <feFuncB type="table" tableValues="0.20 0.46 0.14 0.28" />
+          </feComponentTransfer>
+        </filter>
+      </svg>
+      <div className="cursor" ref={cursorRef} aria-hidden="true">
+        <span className="cursor-dot">
+          <svg
+            className="cursor-arrows"
+            viewBox="0 0 40 20"
+            width="30"
+            height="15"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline className="ar-l" points="10,3 3,10 10,17" />
+            <polyline className="ar-r" points="30,3 37,10 30,17" />
+          </svg>
+        </span>
+      </div>
+    </>
   )
 }
 
