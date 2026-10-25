@@ -37,8 +37,78 @@ a { color: inherit; text-decoration: none; }
 .text-link { color: var(--muted); font-size: 12px; gap: 4px; }
 .text-link:hover, .underlined-link:hover { color: var(--red); }
 .main-content { max-width: 1320px; margin: 0 auto; padding: 0 5.5%; }
-.page-transition { animation: pageFade .42s ease both; }
-@keyframes pageFade { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+/* Cinematic page transition */
+.page-transition {
+  animation: pageReveal 650ms cubic-bezier(.22, 1, .36, 1) both;
+  transform-origin: center top;
+  will-change: opacity, transform, filter;
+}
+
+@keyframes pageReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(.985);
+    filter: blur(5px);
+  }
+
+  60% {
+    opacity: 1;
+    filter: blur(0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* Cinematic artwork reveal */
+.modal-scrim {
+  animation: modalBackdropIn 350ms ease both;
+}
+
+.art-modal {
+  animation: artworkReveal 550ms cubic-bezier(.16, 1, .3, 1) both;
+  transform-origin: center center;
+}
+
+@keyframes modalBackdropIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0);
+  }
+
+  to {
+    opacity: 1;
+    backdrop-filter: blur(8px);
+  }
+}
+
+@keyframes artworkReveal {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(.94);
+    filter: blur(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* Respect accessibility preferences */
+@media (prefers-reduced-motion: reduce) {
+  .page-transition,
+  .modal-scrim,
+  .art-modal {
+    animation: none !important;
+    filter: none !important;
+    transform: none !important;
+  }
+}
 .eyebrow { font: 10px var(--mono); letter-spacing: .1em; color: var(--muted); text-transform: uppercase; }
 .landing-page { padding-top: 48px; }
 .landing-kicker { font: 10px var(--mono); letter-spacing: .1em; color: var(--muted); display: flex; align-items: center; gap: 8px; }
@@ -663,3 +733,27 @@ html.has-cursor, html.has-cursor * { cursor: none !important; }
 .cursor.down[data-state='drag'] .ar-l { transform: translateX(5px); }
 .cursor.down[data-state='drag'] .ar-r { transform: translateX(-5px); }
 .cursor.down[data-state='drag'] .cursor-dot { transform: scale(.92); }
+
+/* Subtle cinematic hover */
+.hung-paper {
+  transition:
+    transform 350ms cubic-bezier(.22, 1, .36, 1),
+    filter 350ms ease;
+}
+
+.paper-sheet {
+  transition:
+    box-shadow 350ms ease,
+    background-color 350ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hung-paper:hover {
+    z-index: 20;
+    filter: brightness(1.06);
+  }
+
+  .hung-paper:hover .paper-sheet {
+    box-shadow: 0 14px 35px rgba(0, 0, 0, .2);
+  }
+}
