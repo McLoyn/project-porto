@@ -757,3 +757,149 @@ html.has-cursor, html.has-cursor * { cursor: none !important; }
     box-shadow: 0 14px 35px rgba(0, 0, 0, .2);
   }
 }
+
+/* ===== Tempel di PALING BAWAH src/styles.css =====
+   Berisi: (A) perbaikan bug yang ditemukan saat review, (B) paket animasi sinematik. Murni CSS, tanpa JS baru.
+   Setelah ditempel, Anda boleh menghapus @keyframes pageReveal dan blok ".page-transition" lama (sudah tertimpa). */
+
+/* =====================================================================
+   A. PERBAIKAN BUG
+   ===================================================================== */
+
+/* A1. Transisi halaman lama memakai transform + filter + will-change dengan fill-mode "both".
+   Itu membuat .page-transition menjadi "containing block" untuk elemen position:fixed di dalamnya
+   -> tombol Back galeri, modal karya, dan tombol Order mobile tidak lagi menempel ke layar.
+   Perbaikan: wrapper hanya animasi opacity; gerakan dipindah ke anak-anak halaman (lihat B1). */
+.page-transition {
+  animation: pageFadeIn .45s ease both;
+  will-change: auto;
+  transform-origin: initial;
+}
+@keyframes pageFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* A2. Animasi modal baru tertimpa aturan lama yang ada lebih bawah (pageFade sudah tidak ada). */
+.modal-scrim { animation: modalBackdropIn 350ms ease both; }
+.art-modal   { animation: artworkReveal 550ms cubic-bezier(.16, 1, .3, 1) both; }
+
+/* A3. Bayangan sampul belakang buku masih krem terang di mode gelap. */
+.book-base { box-shadow: 8px 10px 0 var(--shadow-block); }
+
+/* A4. Teks "3 / 8" di buku mobile belum punya gaya. */
+.carousel-status { font: 10px var(--mono); letter-spacing: .08em; color: var(--muted); }
+
+/* A5. Cadangan untuk browser tanpa :has() — sampul tetap gelap. */
+.cover { background: #2b2a25; }
+
+/* =====================================================================
+   B. PAKET ANIMASI
+   ===================================================================== */
+
+@keyframes rise {
+  from { opacity: 0; translate: 0 20px; }
+  to   { opacity: 1; translate: 0 0; }
+}
+
+/* B1. Isi halaman muncul berurutan (stagger). fill-mode "backwards" => tidak ada transform tersisa
+   setelah animasi selesai, jadi elemen fixed aman. Elemen fixed dikecualikan. */
+.page-transition .page > :where(:not(.gallery-back):not(.order-sticky):not(.modal-scrim)) {
+  animation: rise .8s cubic-bezier(.22, 1, .36, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 90ms);
+}
+.page-transition .page > :nth-child(1) { --i: 0; }
+.page-transition .page > :nth-child(2) { --i: 1; }
+.page-transition .page > :nth-child(3) { --i: 2; }
+.page-transition .page > :nth-child(4) { --i: 3; }
+.page-transition .page > :nth-child(5) { --i: 4; }
+.page-transition .page > :nth-child(n+6) { --i: 5; }
+.landing-page > .hero-layout { animation: none; }          /* hero punya urutan sendiri (B2) */
+
+/* B2. Hero landing */
+.hero-copy > * { animation: rise .95s cubic-bezier(.22, 1, .36, 1) backwards; animation-delay: calc(.12s + var(--h, 0) * 110ms); }
+.hero-copy > :nth-child(1) { --h: 0; }
+.hero-copy > :nth-child(2) { --h: 1; }
+.hero-copy > :nth-child(3) { --h: 2; }
+.hero-copy > :nth-child(4) { --h: 3; }
+.hero-copy > :nth-child(5) { --h: 4; }
+
+@keyframes paperDrop {
+  from { opacity: 0; translate: 0 -40px; rotate: -5deg; }
+  to   { opacity: 1; translate: 0 0;     rotate: 0deg; }
+}
+.portrait-paper { animation: paperDrop 1.1s cubic-bezier(.22, 1, .36, 1) .25s backwards; }
+.portrait-note  { animation: rise .8s ease .8s backwards; }
+.stage-index    { animation: rise .8s ease 1s backwards; }
+
+@keyframes stickerIn { from { opacity: 0; scale: .6; } to { opacity: 1; scale: 1; } }
+@keyframes stickerWobble { from { transform: rotate(5.5deg); } to { transform: rotate(8.5deg); } }
+.stage-sticker {
+  animation: stickerIn .6s cubic-bezier(.3, 1.6, .5, 1) 1.15s backwards,
+             stickerWobble 5s ease-in-out 1.8s infinite alternate;
+}
+
+/* orbit berputar sangat pelan (dari sudut awal masing-masing) */
+@keyframes orbitA { to { transform: rotate(337deg); } }
+@keyframes orbitB { to { transform: rotate(-335deg); } }
+.orbit-one { animation: orbitA 110s linear infinite; }
+.orbit-two { animation: orbitB 150s linear infinite; }
+
+/* B3. Muncul saat di-scroll (scroll-driven animation; Chrome/Edge 115+, browser lain: tampil biasa) */
+@keyframes scrollRise {
+  from { opacity: 0; translate: 0 38px; }
+  to   { opacity: 1; translate: 0 0; }
+}
+@supports (animation-timeline: view()) {
+  .page-transition .page > :is(.landing-gallery, .info-section, .order-banner, .quick-facts, .site-footer) {
+    animation: scrollRise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 38%;
+  }
+  .hanging-item {
+    animation: scrollRise linear both;
+    animation-timeline: view();
+    animation-range: entry 10% entry 55%;
+  }
+  .info-section .info-table tbody tr {      /* hanya tampilan List (tabel di dalam buku tidak dianimasikan) */
+    animation: scrollRise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 60%;
+  }
+}
+
+/* B4. Kertas di tali bergoyang pelan seperti tertiup angin (berhenti saat di-hover / digeser) */
+@keyframes sway { from { rotate: -1.1deg; } to { rotate: 1.1deg; } }
+.hung-paper .paper-sheet { transform-origin: 50% 0; animation: sway 5.5s ease-in-out infinite alternate; }
+.hung-paper:nth-child(3n+2) .paper-sheet { animation-duration: 6.4s; animation-delay: -2.1s; }
+.hung-paper:nth-child(3n)   .paper-sheet { animation-duration: 4.9s; animation-delay: -3.4s; }
+.hung-paper:hover .paper-sheet, .rope-stage:active .paper-sheet { animation-play-state: paused; }
+
+/* B5. Menu hamburger: item masuk satu per satu */
+@keyframes slideInLeft { from { opacity: 0; translate: -16px 0; } to { opacity: 1; translate: 0 0; } }
+.drawer-cta > *, .drawer-links button, .drawer-simple {
+  animation: slideInLeft .5s cubic-bezier(.22, 1, .36, 1) backwards;
+}
+.drawer-cta > :nth-child(1)         { animation-delay: .10s; }
+.drawer-cta > :nth-child(2)         { animation-delay: .16s; }
+.drawer-links button:nth-child(1)   { animation-delay: .22s; }
+.drawer-links button:nth-child(2)   { animation-delay: .28s; }
+.drawer-links button:nth-child(3)   { animation-delay: .34s; }
+.drawer-links button:nth-child(4)   { animation-delay: .40s; }
+.drawer-simple                      { animation-delay: .48s; }
+
+/* B6. Mikro-interaksi: ikon panah bergeser sedikit saat tombol di-hover */
+.primary-button svg, .ghost-button svg, .nav-cta svg, .nav-link svg, .underlined-link svg {
+  transition: transform .25s cubic-bezier(.22, 1, .36, 1);
+}
+.ghost-button:hover svg, .nav-cta:hover svg, .nav-link:hover svg, .underlined-link:hover svg { transform: translate(2px, -2px); }
+.primary-button:hover svg { transform: translate(2px, 2px); }
+.hero-actions .primary-button:hover svg { transform: translate(2px, 2px); }
+.theme-toggle svg { transition: transform .5s cubic-bezier(.22, 1, .36, 1); }
+.theme-toggle:active svg { transform: rotate(90deg) scale(.85); }
+
+/* "Kurangi gerakan": animasi berbasis scroll tidak terpengaruh oleh animation-duration, jadi dimatikan eksplisit. */
+@media (prefers-reduced-motion: reduce) {
+  .page-transition .page > *, .hanging-item, .info-section .info-table tbody tr,
+  .hung-paper .paper-sheet, .orbit, .stage-sticker { animation: none !important; }
+}
+
+/* Catatan: aturan prefers-reduced-motion di styles.css Anda (animation-duration .01ms !important) sudah
+   mematikan semua animasi di atas bagi pengguna yang memilih "kurangi gerakan". */
