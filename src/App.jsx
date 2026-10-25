@@ -828,8 +828,8 @@ function InfoPage({ type, navigate }) {
           </>
         ) : (
           <>
-            <p>Hi! I’m a freelance artist. I enjoy creating concept art, illustrations, character designs, scenery, unique things, and more—all available through the VGen platform. 
-              Hmm... I can’t really say too much, as I’d prefer not to share any private information, hehe~</p>
+            <p>Hi! I’m a freelance artist. I enjoy creating concept art, illustrations, character designs, scenery, unique things, and more—all available through the VGen platform.</p>
+            <p>Hmm... I can’t really say too much, as I’d prefer not to share any private information, hehe~</p>
             <ul className="contact-list">
               {socials.map(([label, href]) => (
                 <li key={label}><a className="underlined-link" href={href} target="_blank" rel="noreferrer">{label} <ExternalLink size={14} /></a></li>
