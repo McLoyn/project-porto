@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowDownRight, ArrowLeft, ArrowRight, ArrowUpRight, ChevronLeft,
-  Menu, X, ExternalLink, Sparkles, Instagram, Twitter, Mail, Moon, Sun
+  Menu, X, ExternalLink, Instagram, Twitter, Mail, Moon, Sun
 } from 'lucide-react'
 
 const VGEN_URL = 'https://vgen.co/loyn'
@@ -812,37 +812,26 @@ function CommissionPage({ navigate }) {
   )
 }
 
-function InfoPage({ type, navigate }) {
-  const isQueue = type === 'queue'
+function InfoPage({ navigate }) {
   return (
     <section className="page simple-page">
-      <p className="eyebrow">{isQueue ? 'CURRENT STATUS' : 'A LITTLE ABOUT ME'}</p>
-      <h1>{isQueue ? 'Commission queue.' : 'Hello, I’m Loyn.'}</h1>
+      <p className="eyebrow">A LITTLE ABOUT ME</p>
+      <h1>Hello, I’m Loyn.</h1>
       <div className="simple-card">
         <span className="status-dot" />
-        <h2>{isQueue ? 'Follow my progress on Trello.' : 'Loyn Illust — illustrator.'}</h2>
-        {isQueue ? (
-          <>
-            <p>My current commission queue is updated on my Trello board.</p>
-            <a className="underlined-link" href={TRELLO_URL} target="_blank" rel="noreferrer">Open queue <ExternalLink size={15} /></a>
-          </>
-        ) : (
-          <>
-            <p>Hi! I’m a freelance artist. I enjoy creating concept art, illustrations, character designs, scenery, unique things, and more—all available through the VGen platform.</p>
-            <p>Hmm... I can’t really say too much, as I’d prefer not to share any private information, hehe~</p>
-            <ul className="contact-list">
-              {socials.map(([label, href]) => (
-                <li key={label}><a className="underlined-link" href={href} target="_blank" rel="noreferrer">{label} <ExternalLink size={14} /></a></li>
-              ))}
-            </ul>
-          </>
-        )}
+        <h2>Loyn Illust — illustrator.</h2>
+        <p>Hi! I’m a freelance artist. I enjoy creating concept art, illustrations, character designs, scenery, unique things, and more—all available through the VGen platform.</p>
+        <p>Hmm... I can’t really say too much, as I’d prefer not to share any private information, hehe~</p>
+        <ul className="contact-list">
+          {socials.map(([label, href]) => (
+            <li key={label}><a className="underlined-link" href={href} target="_blank" rel="noreferrer">{label} <ExternalLink size={14} /></a></li>
+          ))}
+        </ul>
       </div>
       <button className="underlined-link" onClick={() => navigate('main')}><ArrowLeft size={15} /> Back to gallery</button>
     </section>
   )
 }
-
 function useTheme() {
   const [theme, setTheme] = useState(() => document.documentElement.dataset.theme || 'light')
   useEffect(() => {
@@ -1026,7 +1015,7 @@ export default function App() {
           {page === 'landing' && <Landing navigate={navigate} />}
           {page === 'main' && <GalleryPage navigate={navigate} />}
           {page === 'commission' && <CommissionPage navigate={navigate} />}
-          {(page === 'about' || page === 'queue') && <InfoPage type={page} navigate={navigate} />}
+          {page === 'about' && <InfoPage navigate={navigate} />}
         </div>
       </main>
       <MenuDrawer open={menuOpen} onClose={() => setMenuOpen(false)} navigate={navigate} />
