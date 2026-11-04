@@ -13,7 +13,7 @@ const heroSocials = [
   ['VGen', VGEN_URL, <span className="social-mask" key="vgen" />],
 ]
 const TRELLO_URL = 'https://trello.com/b/j8EIfMRz/loyn-workspace'
-const COMMISSION = { status: 'open', slots: 3 }
+const COMMISSION = { status: 'closed', slots: 0 }
 const ORDER_CTA = {
   open: { label: 'Order on VGen', href: VGEN_URL },
   waitlist: { label: 'Join waitlist', href: VGEN_URL },
