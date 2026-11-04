@@ -13,6 +13,37 @@ const heroSocials = [
   ['VGen', VGEN_URL, <span className="social-mask" key="vgen" />],
 ]
 const TRELLO_URL = 'https://trello.com/b/j8EIfMRz/loyn-workspace'
+const COMMISSION = { status: 'open', slots: 3 }
+const ORDER_CTA = {
+  open: { label: 'Order on VGen', href: VGEN_URL },
+  waitlist: { label: 'Join waitlist', href: VGEN_URL },
+  closed: { label: 'View queue', href: TRELLO_URL },
+}[COMMISSION.status]
+
+function StatusBadge() {
+  const { status, slots } = COMMISSION
+  const text =
+    status === 'open'
+      ? `Commissions open${slots ? ` · ${slots} ${slots === 1 ? 'slot' : 'slots'} left` : ''}`
+      : status === 'waitlist'
+        ? 'Slots full · waitlist open'
+        : 'Commissions closed'
+
+  return (
+    <span className={`status-badge is-${status}`} role="status">
+      <i aria-hidden="true" />{text}
+    </span>
+  )
+}
+
+function OrderCta({ className, iconSize = 16 }) {
+  return (
+    <a className={className} href={ORDER_CTA.href} target="_blank" rel="noreferrer">
+      {ORDER_CTA.label} <ExternalLink size={iconSize} />
+    </a>
+  )
+}
+
 const socials = [
   ['X / Twitter', 'https://x.com/loynillust'],
   ['Instagram', 'https://www.instagram.com/loynillust'],
@@ -202,14 +233,12 @@ function Header({ onMenu, onHome, onBack, onNavigate, theme, onToggleTheme, curr
             className={`nav-link ${current === 'commission' ? 'active' : ''}`}
             onClick={() => onNavigate('commission')}
           >
-            Commission
+            <span className={`nav-dot is-${COMMISSION.status}`} aria-hidden="true" />Commission
           </button>
           <a className="nav-link hide-sm" href={TRELLO_URL} target="_blank" rel="noreferrer">
             Queue <ArrowUpRight size={13} />
           </a>
-          <a className="nav-cta hide-sm" href={VGEN_URL} target="_blank" rel="noreferrer">
-            Order on VGen <ExternalLink size={13} />
-          </a>
+          <OrderCta className="nav-cta hide-sm" iconSize={13} />
           <button
             className="theme-toggle"
             onClick={onToggleTheme}
@@ -241,8 +270,8 @@ function MenuDrawer({ open, onClose, navigate }) {
           <button className="icon-button" onClick={onClose} aria-label="Close menu"><X size={20} /></button>
         </div>
         <div className="drawer-cta">
-          <a className="drawer-order" href={VGEN_URL} target="_blank" rel="noreferrer">
-            <span>Order on VGen</span><ExternalLink size={16} />
+          <a className="drawer-order" href={ORDER_CTA.href} target="_blank" rel="noreferrer">
+            <span>{ORDER_CTA.label}</span><ExternalLink size={16} />
           </a>
           <a className="drawer-queue" href={TRELLO_URL} target="_blank" rel="noreferrer">
             <span>Commission queue</span><ArrowUpRight size={16} />
@@ -293,6 +322,7 @@ function Landing({ navigate }) {
           <p className="eyebrow">WELCOME TO LOYN'S LITTLE CORNER</p>
           <h1>Drawn from<br /><span>daydreams.</span></h1>
           <p className="hero-description">A collection of characters, unfinished thoughts, and little things I wanted to keep.</p>
+          <StatusBadge />
           <div className="hero-actions">
             <button className="primary-button" onClick={() => navigate('main')}>Enter the gallery <ArrowDownRight size={17} /></button>
             <button className="ghost-button" onClick={() => navigate('commission')}>Commission info <ArrowUpRight size={16} /></button>
@@ -647,7 +677,7 @@ const TermsPage = () => (
 const OrderPage = () => (
   <Leaf eyebrow="READY WHEN YOU ARE" title="Let’s talk about your idea.">
     <div className="order-links">
-      <a className="primary-button" href={VGEN_URL} target="_blank" rel="noreferrer">Order on VGen <ExternalLink size={16} /></a>
+      <OrderCta className="primary-button" />
       <a className="underlined-link" href={TRELLO_URL} target="_blank" rel="noreferrer">Check the queue <ExternalLink size={14} /></a>
     </div>
     <p className="leaf-note">Questions first? Find me here:</p>
@@ -772,11 +802,11 @@ function CommissionList() {
       <div className="order-banner">
         <div><span className="eyebrow">READY WHEN YOU ARE</span><h2>Let's talk<br /><em>about your idea.</em></h2></div>
         <div className="order-actions">
-          <a className="primary-button" href={VGEN_URL} target="_blank" rel="noreferrer">Order on VGen <ExternalLink size={16} /></a>
+          <OrderCta className="primary-button" />
           <a className="underlined-link" href={TRELLO_URL} target="_blank" rel="noreferrer">Check the queue <ExternalLink size={14} /></a>
         </div>
       </div>
-      <a className="order-sticky" href={VGEN_URL} target="_blank" rel="noreferrer">Order on VGen <ExternalLink size={15} /></a>
+      <OrderCta className="order-sticky" iconSize={15} />
     </>
   )
 }
@@ -802,9 +832,12 @@ function CommissionPage({ navigate }) {
         <div><p className="eyebrow">MADE TO ORDER / BY LOYN</p><h1>Commission<span className="red-dot">.</span></h1></div>
         <p className="intro-aside">Everything you need to know before ordering: prices, what I draw, and how it works.</p>
       </div>
-      <div className="view-toggle" role="group" aria-label="Choose how to read">
-        <button aria-pressed={view === 'book'} onClick={() => setView('book')}>Book</button>
-        <button aria-pressed={view === 'list'} onClick={() => setView('list')}>List</button>
+      <div className="commission-toolbar">
+        <div className="view-toggle" role="group" aria-label="Choose how to read">
+          <button aria-pressed={view === 'book'} onClick={() => setView('book')}>Book</button>
+          <button aria-pressed={view === 'list'} onClick={() => setView('list')}>List</button>
+        </div>
+        <StatusBadge />
       </div>
       {view === 'list' ? <CommissionList /> : wide ? <Book /> : <MobileBook />}
       <footer className="site-footer"><span>LOYN — COMMISSION INFORMATION</span><button onClick={() => navigate('main')}>BACK TO GALLERY ↑</button></footer>
