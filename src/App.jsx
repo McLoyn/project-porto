@@ -188,8 +188,8 @@ function Header({ onMenu, onHome, onBack, onNavigate, theme, onToggleTheme, curr
             <Menu size={20} strokeWidth={1.7} />
           </button>
           <button className="brand-mark" onClick={onHome} aria-label="Go to landing page">
-            <span className="brand-scribble">loyn</span>
-            <span className="brand-dot" />
+            <img className="brand-logo only-light" src="/brand/loyn-mark-light.webp" alt="Loyn" width="45" height="34" />
+            <img className="brand-logo only-dark" src="/brand/loyn-mark-dark.webp" alt="Loyn" width="45" height="34" />
           </button>
         </div>
         <nav className="topbar-right" aria-label="Main">
