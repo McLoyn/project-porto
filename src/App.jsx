@@ -13,7 +13,7 @@ const heroSocials = [
   ['VGen', VGEN_URL, <span className="social-mask" key="vgen" />],
 ]
 const TRELLO_URL = 'https://trello.com/b/j8EIfMRz/loyn-workspace'
-const COMMISSION = { status: 'closed', slots: 0 }
+const COMMISSION = { status: 'open', slots: 3 }
 const ORDER_CTA = {
   open: { label: 'Order on VGen', href: VGEN_URL },
   waitlist: { label: 'Join waitlist', href: VGEN_URL },
@@ -352,7 +352,7 @@ function Landing({ navigate }) {
         </div>
         <GalleryStrip />
       </div>
-      <footer className="site-footer"><span>LOYN ILLUST — COMMISSION SHEET</span><span>MADE SLOWLY, WITH CARE ↗</span></footer>
+      <footer className="site-footer"><span className="footer-brand"><img className="footer-mark only-light" src="/brand/loyn-mark-light.webp" alt="" width="30" height="22" /><img className="footer-mark only-dark" src="/brand/loyn-mark-dark.webp" alt="" width="30" height="22" />LOYN ILLUST — COMMISSION SHEET</span><span>MADE SLOWLY, WITH CARE ↗</span></footer>
     </section>
   )
 }
@@ -626,7 +626,7 @@ function CoverPage({ onOpen }) {
   const art = artworks[0]
   return (
     <button className="cover" onClick={onOpen} aria-label="Open the commission book">
-      <span className="cover-eyebrow">MADE TO ORDER ✳ BY LOYN</span>
+      <img className="cover-logo" src="/brand/loyn-logo-dark.webp" alt="Loyn" width="76" height="40" />
       <span className="cover-frame">
         {art?.thumb ? <img src={art.thumb} alt="" draggable="false" /> : <DoodlePortrait />}
       </span>
@@ -840,7 +840,7 @@ function CommissionPage({ navigate }) {
         <StatusBadge />
       </div>
       {view === 'list' ? <CommissionList /> : wide ? <Book /> : <MobileBook />}
-      <footer className="site-footer"><span>LOYN — COMMISSION INFORMATION</span><button onClick={() => navigate('main')}>BACK TO GALLERY ↑</button></footer>
+      <footer className="site-footer"><span className="footer-brand"><img className="footer-mark only-light" src="/brand/loyn-mark-light.webp" alt="" width="30" height="22" /><img className="footer-mark only-dark" src="/brand/loyn-mark-dark.webp" alt="" width="30" height="22" />LOYN — COMMISSION INFORMATION</span><button onClick={() => navigate('main')}>BACK TO GALLERY ↑</button></footer>
     </section>
   )
 }
@@ -848,6 +848,8 @@ function CommissionPage({ navigate }) {
 function InfoPage({ navigate }) {
   return (
     <section className="page simple-page">
+      <img className="about-logo only-light" src="/brand/loyn-logo-light.webp" alt="Loyn" width="280" height="149" />
+      <img className="about-logo only-dark" src="/brand/loyn-logo-dark.webp" alt="Loyn" width="280" height="149" />
       <p className="eyebrow">A LITTLE ABOUT ME</p>
       <h1>Hello, I’m Loyn.</h1>
       <div className="simple-card">
