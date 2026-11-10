@@ -3,23 +3,47 @@ import {
   ArrowDownRight, ArrowLeft, ArrowRight, ArrowUpRight, ChevronLeft,
   Menu, X, ExternalLink, Instagram, Twitter, Mail, Moon, Sun
 } from 'lucide-react'
+import {
+  VGEN_URL, CARRD_URL, TRELLO_URL, COMMISSION,
+  heroSocials as heroSocialsData, socials,
+  bookContacts, artworks, quickFacts,
+  basePrice, additionalPrice, willDraw, willNot, terms, steps,
+} from './data.js'
 
-const VGEN_URL = 'https://vgen.co/loyn'
-const CARRD_URL = 'https://loynn.carrd.co'
-const heroSocials = [
-  ['X', 'https://x.com/loynillust', <Twitter size={16} strokeWidth={1.6} key="x" />],
-  ['Instagram', 'https://www.instagram.com/loynillust', <Instagram size={16} strokeWidth={1.6} key="ig" />],
-  ['Email', 'mailto:ozloynn@gmail.com', <Mail size={16} strokeWidth={1.6} key="mail" />],
-  ['VGen', VGEN_URL, <span className="social-mask" key="vgen" />],
-]
-const TRELLO_URL = 'https://trello.com/b/j8EIfMRz/loyn-workspace'
-const COMMISSION = { status: 'open', slots: 3 }
+// ─── CTA derivados ───────────────────────────────────────────
 const ORDER_CTA = {
-  open: { label: 'Order on VGen', href: VGEN_URL },
-  waitlist: { label: 'Join waitlist', href: VGEN_URL },
-  closed: { label: 'View queue', href: TRELLO_URL },
+  open:     { label: 'Order on VGen',  href: VGEN_URL },
+  waitlist: { label: 'Join waitlist',  href: VGEN_URL },
+  closed:   { label: 'View queue',     href: TRELLO_URL },
 }[COMMISSION.status]
 
+// Icon map untuk heroSocials (tidak bisa disimpan di data.js karena JSX)
+const SOCIAL_ICONS = {
+  twitter:   <Twitter   size={16} strokeWidth={1.6} />,
+  instagram: <Instagram size={16} strokeWidth={1.6} />,
+  mail:      <Mail      size={16} strokeWidth={1.6} />,
+  vgen:      <span className="social-mask" />,
+}
+
+// ─── URL hash ─────────────────────────────────────────────────
+const PAGE_HASH = {
+  landing:    '',
+  main:       'gallery',
+  commission: 'commission',
+  about:      'about',
+}
+const HASH_PAGE = Object.fromEntries(
+  Object.entries(PAGE_HASH).map(([page, hash]) => [hash, page])
+)
+function getPageFromHash() {
+  const hash = window.location.hash.replace('#', '')
+  return HASH_PAGE[hash] || 'landing'
+}
+
+// ─── Helper ───────────────────────────────────────────────────
+const fmtUsd = (value) => (/^\d/.test(value) ? `$${value}` : value)
+
+// ─── StatusBadge ─────────────────────────────────────────────
 function StatusBadge() {
   const { status, slots } = COMMISSION
   const text =
@@ -36,6 +60,7 @@ function StatusBadge() {
   )
 }
 
+// ─── OrderCta ────────────────────────────────────────────────
 function OrderCta({ className, iconSize = 16 }) {
   return (
     <a className={className} href={ORDER_CTA.href} target="_blank" rel="noreferrer">
@@ -44,83 +69,7 @@ function OrderCta({ className, iconSize = 16 }) {
   )
 }
 
-const socials = [
-  ['X / Twitter', 'https://x.com/loynillust'],
-  ['Instagram', 'https://www.instagram.com/loynillust'],
-  ['WhatsApp', 'https://wa.me/6287733660846'],
-  ['Email', 'mailto:ozloynn@gmail.com'],
-  ['VGen', VGEN_URL],
-]
-
-// template:
-// { title: 'Title', kind: 'what', tone: 'artwork-', note: 'digital painting', src: '/art/.jpg', thumb: '/art/thumb/.jpg' },
-
-const artworks = [
-  { title: 'Different World',      kind: 'Illustration',    tone: 'artwork-two',   note: 'digital',          src: '/art/02.jpg', thumb: '/art/thumb/02.jpg' },
-  { title: 'Blue', kind: 'Scene Study', tone: 'artwork-three', note: 'digital painting', src: '/art/15.jpg', thumb: '/art/thumb/15.jpg' },
-  { title: 'Lying in Grass', kind: 'Study',    tone: 'artwork-five',  note: 'digital',          src: '/art/05.jpg', thumb: '/art/thumb/05.jpg' },                
-  
-  
-  { title: 'Who?',      kind: 'Illustration',    tone: 'artwork-one',   note: 'digital painting', src: '/art/01.jpg', thumb: '/art/thumb/01.jpg' },
-  { title: 'Training',           kind: 'Character study', tone: 'artwork-three', note: 'digital sketch',   src: '/art/03.jpg', thumb: '/art/thumb/03.jpg' },
-  { title: 'Crow & Bridge',  kind: 'Character design', tone: 'artwork-four', note: 'digital',          src: '/art/04.jpg', thumb: '/art/thumb/04.jpg' },
-  
-  { title: 'First Commission', kind: 'Illustration Commission', tone: 'artwork-one', note: 'digital painting', src: '/art/08.jpg', thumb: '/art/thumb/08.jpg' },
-  { title: 'Golden Field',   kind: 'Redraw Study',    tone: 'artwork-six',   note: 'digital painting', src: '/art/06.jpg', thumb: '/art/thumb/06.jpg' },
-  { title: 'Lady Vertin',    kind: 'Paint Study',        tone: 'artwork-one',   note: 'digital painting', src: '/art/07.jpg', thumb: '/art/thumb/07.jpg' },
-  
-  { title: 'Lost', kind: 'Illustration', tone: 'artwork-one', note: 'digital painting', src: '/art/13.jpg', thumb: '/art/thumb/13.jpg' },
-]
-
-const quickFacts = [
-  ['Order via', <><a className="inline-link" href={VGEN_URL} target="_blank" rel="noreferrer">VGen</a> / direct (local)</>],
-  ['Down payment', '50%'],
-  ['Rough sketch', '1–4 days'],
-  ['Full render', '7–30 days'],
-]
-
-const basePrice = [
-  ['Bust up', '1', '50k', '40k', '15', 'https://vgen.co/loyn/service/illustration-bust-up-/4c0df3fd-6328-42ef-8098-83d9447687aa'],
-  ['Half body', '1', null, '80k', '20', 'https://vgen.co/loyn/service/illustration-half-body-knee-up-/cf73821a-28f8-4d48-836a-e942a753f81d'],
-  ['Full body', '1', null, '120k', '40', 'https://vgen.co/loyn/service/illustration-full-body-/85d39179-8815-4559-b487-b5739a92c3d6'],
-]
-
-const additionalPrice = [
-  ['Monetized content', '+40%', '+40%'],
-  ['Commercial merch', '+80%', '+80%'],
-  ['Minor revision', 'Free', 'Free'],
-  ['Major revision', '20k', '5'],
-]
-
-const willNot = ['NSFW', 'Hard Mecha', 'Heavy Gore']
-const willDraw = ['Original Character', 'FanArt', 'Kemonomimi']
-
-const terms = [
-  ['Platform', 'Main commission is on VGen for safety (international). Local payment via Gopay or Dana.'],
-  ['Payment', '50% down payment before the project starts; the remaining 50% before the final file is sent. Non-refundable.'],
-  ['Rough sketch', '1–4 days.'],
-  ['Full render', '7–30 days, counted after the sketch/lineart is approved.'],
-  ['Revisions', '2 major revisions and unlimited minor revisions.'],
-  ['Portfolio', 'Commissioned artworks may be shown in my portfolio (website, social media, etc).'],
-  ['Files', 'Google Drive share for the terms and files is available for 30 days.'],
-]
-
-const steps = [
-  ['Order', 'Choose a type and send your idea and references on VGen (or contact me directly for local payment).'],
-  ['Down payment', 'Pay 50% to start the project.'],
-  ['Sketch', 'Rough sketch in 1–4 days. Check the composition and request changes.'],
-  ['Render', 'Full render in 7–30 days after the sketch/lineart is approved.'],
-  ['Delivery', 'Pay the remaining 50%, then receive the final file.'],
-]
-
-const bookContacts = [
-  ['X', 'https://x.com/loynillust'],
-  ['Instagram', 'https://www.instagram.com/loynillust'],
-  ['Email', 'mailto:ozloynn@gmail.com'],
-]
-
-const fmtUsd = (value) => (/^\d/.test(value) ? `$${value}` : value)
-
+// ─── Tables ──────────────────────────────────────────────────
 function BaseTable() {
   return (
     <div className="table-scroll">
@@ -210,6 +159,7 @@ function TermsTable() {
   )
 }
 
+// ─── Header ──────────────────────────────────────────────────
 function Header({ onMenu, onHome, onBack, onNavigate, theme, onToggleTheme, current }) {
   return (
     <div className="topbar-wrap">
@@ -220,7 +170,7 @@ function Header({ onMenu, onHome, onBack, onNavigate, theme, onToggleTheme, curr
           </button>
           <button className="brand-mark" onClick={onHome} aria-label="Go to landing page">
             <img className="brand-logo only-light" src="/brand/loyn-mark-light.webp" alt="Loyn" width="45" height="34" />
-            <img className="brand-logo only-dark" src="/brand/loyn-mark-dark.webp" alt="Loyn" width="45" height="34" />
+            <img className="brand-logo only-dark"  src="/brand/loyn-mark-dark.webp"  alt="Loyn" width="45" height="34" />
           </button>
         </div>
         <nav className="topbar-right" aria-label="Main">
@@ -254,13 +204,14 @@ function Header({ onMenu, onHome, onBack, onNavigate, theme, onToggleTheme, curr
   )
 }
 
+// ─── MenuDrawer ──────────────────────────────────────────────
 function MenuDrawer({ open, onClose, navigate }) {
   if (!open) return null
   const links = [
-    ['Home', 'landing'],
-    ['Gallery', 'main'],
-    ['Commission info', 'commission'],
-    ['About & Contact', 'about'],
+    ['Home',              'landing'],
+    ['Gallery',           'main'],
+    ['Commission info',   'commission'],
+    ['About & Contact',   'about'],
   ]
   return (
     <div className="drawer-scrim" onMouseDown={onClose}>
@@ -294,6 +245,7 @@ function MenuDrawer({ open, onClose, navigate }) {
   )
 }
 
+// ─── DoodlePortrait ──────────────────────────────────────────
 function DoodlePortrait() {
   return (
     <svg className="portrait-svg" viewBox="0 0 360 330" role="img" aria-label="Decorative rough line-art portrait placeholder">
@@ -313,6 +265,7 @@ function DoodlePortrait() {
   )
 }
 
+// ─── Landing ─────────────────────────────────────────────────
 function Landing({ navigate }) {
   return (
     <section className="page landing-page">
@@ -325,11 +278,13 @@ function Landing({ navigate }) {
           <StatusBadge />
           <div className="hero-actions">
             <button className="primary-button" onClick={() => navigate('main')}>Enter the gallery <ArrowDownRight size={17} /></button>
-            <button className="ghost-button" onClick={() => navigate('commission')}>Commission info <ArrowUpRight size={16} /></button>
+            <button className="ghost-button"   onClick={() => navigate('commission')}>Commission info <ArrowUpRight size={16} /></button>
           </div>
           <div className="hero-socials">
-            {heroSocials.map(([label, href, icon]) => (
-              <a key={label} className="social-circle" href={href} target="_blank" rel="noreferrer" aria-label={label} title={label}>{icon}</a>
+            {heroSocialsData.map(([label, href, iconKey]) => (
+              <a key={label} className="social-circle" href={href} target="_blank" rel="noreferrer" aria-label={label} title={label}>
+                {SOCIAL_ICONS[iconKey]}
+              </a>
             ))}
           </div>
         </div>
@@ -350,27 +305,37 @@ function Landing({ navigate }) {
           <div><span className="eyebrow">A FEW THINGS I MADE</span><h2>Little gallery<span className="red-dot">.</span></h2></div>
           <button className="underlined-link" onClick={() => navigate('main')}>View all works <ArrowUpRight size={15} /></button>
         </div>
-        <GalleryStrip />
+        <GalleryStrip onSelect={() => navigate('main')} />
       </div>
       <footer className="site-footer"><span className="footer-brand"><img className="footer-mark only-light" src="/brand/loyn-mark-light.webp" alt="" width="30" height="22" /><img className="footer-mark only-dark" src="/brand/loyn-mark-dark.webp" alt="" width="30" height="22" />LOYN ILLUST — COMMISSION SHEET</span><span>MADE SLOWLY, WITH CARE ↗</span></footer>
     </section>
   )
 }
 
-function GalleryStrip() {
+// ─── GalleryStrip ────────────────────────────────────────────
+function GalleryStrip({ onSelect }) {
   return (
     <div className="hanging-gallery">
       {artworks.slice(0, 4).map((art, index) => (
-        <div className={`hanging-item hang-${index + 1}`} key={art.title}>
+        <button
+          key={art.title}
+          type="button"
+          className={`hanging-item hang-${index + 1}`}
+          onClick={() => onSelect?.(art)}
+          aria-label={`View ${art.title} in gallery`}
+        >
           <span className="clip" />
-          <div className={`artwork-placeholder ${art.tone}`}><img src={art.thumb} alt={art.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /></div>
+          <div className={`artwork-placeholder ${art.tone}`}>
+            <img src={art.thumb} alt={art.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
           <span className="artwork-label">{art.title}</span>
-        </div>
+        </button>
       ))}
     </div>
   )
 }
 
+// ─── Rope gallery ────────────────────────────────────────────
 const ROPES = [
   { key: 'front', paperW: 170, gap: 60, ropeH: 120, sag: 40, opacity: 1,   anchors: [60, 20, 70, 10, 50, 30] },
   { key: 'mid',   paperW: 140, gap: 70, ropeH: 100, sag: 34, opacity: 0.8, anchors: [20, 55, 15, 50, 25, 60] },
@@ -379,20 +344,20 @@ const ROPES = [
 const TILTS = [-4, 3, -2, 5, -5, 2, -3, 4]
 
 function buildRow(cfg, r, items, s, vw) {
-  const paperW = cfg.paperW * s
+  const paperW  = cfg.paperW * s
   const spacing = (cfg.paperW + cfg.gap) * s
-  const seg = spacing * 2
-  const ropeH = cfg.ropeH * s
-  const sag = cfg.sag * s
-  const segs = Math.max(1, Math.ceil(items.length / 2))
-  const lonely = items.length % 2 === 1
-  const segLen = (k) => (lonely && k === segs - 1 ? spacing : seg)
-  const xs = [0]
+  const seg     = spacing * 2
+  const ropeH   = cfg.ropeH * s
+  const sag     = cfg.sag * s
+  const segs    = Math.max(1, Math.ceil(items.length / 2))
+  const lonely  = items.length % 2 === 1
+  const segLen  = (k) => (lonely && k === segs - 1 ? spacing : seg)
+  const xs      = [0]
   for (let k = 0; k < segs; k++) xs.push(xs[k] + segLen(k))
   const inner = xs[segs]
-  const padX = Math.max(60 * s, (vw - inner) / 2)
+  const padX  = Math.max(60 * s, (vw - inner) / 2)
   const width = inner + padX * 2
-  const a = (i) => cfg.anchors[i % cfg.anchors.length] * s
+  const a     = (i) => cfg.anchors[i % cfg.anchors.length] * s
 
   let path = `M0 ${a(0)} L${padX} ${a(0)} `
   for (let k = 0; k < segs; k++) {
@@ -402,13 +367,13 @@ function buildRow(cfg, r, items, s, vw) {
   path += `M${padX + inner} ${a(segs)} L${width} ${a(segs)}`
 
   const placed = items.map((art, i) => {
-    const k = Math.floor(i / 2)
-    const t = lonely && k === segs - 1 ? 0.5 : i % 2 === 0 ? 0.25 : 0.75
+    const k  = Math.floor(i / 2)
+    const t  = lonely && k === segs - 1 ? 0.5 : i % 2 === 0 ? 0.25 : 0.75
     const y0 = a(k), y1 = a(k + 1), c = (y0 + y1) / 2 + sag
     return {
       art,
-      x: padX + xs[k] + t * segLen(k),
-      y: (1 - t) ** 2 * y0 + 2 * (1 - t) * t * c + t ** 2 * y1,
+      x:    padX + xs[k] + t * segLen(k),
+      y:    (1 - t) ** 2 * y0 + 2 * (1 - t) * t * c + t ** 2 * y1,
       tilt: TILTS[(i * 3 + r) % TILTS.length],
     }
   })
@@ -418,14 +383,14 @@ function buildRow(cfg, r, items, s, vw) {
 
 function GalleryPage({ navigate }) {
   const [selected, setSelected] = useState(null)
-  const [vw, setVw] = useState(1000)
-  const [hinted, setHinted] = useState(true)
-  const stageRef = useRef(null)
-  const rowRefs = useRef([])
-  const thumbRef = useRef(null)
+  const [vw, setVw]             = useState(1000)
+  const [hinted, setHinted]     = useState(true)
+  const stageRef  = useRef(null)
+  const rowRefs   = useRef([])
+  const thumbRef  = useRef(null)
   const m = useRef({ target: 0, current: 0, max: [0, 0, 0], front: 1, ratio: 1, drag: null, moved: false, raf: 0 })
 
-  const s = Math.min(1, Math.max(0.6, vw / 1100))
+  const s    = Math.min(1, Math.max(0.6, vw / 1100))
   const rows = useMemo(
     () => ROPES.map((cfg, r) => buildRow(cfg, r, artworks.filter((_, i) => i % 3 === r), s, vw)),
     [s, vw]
@@ -433,13 +398,13 @@ function GalleryPage({ navigate }) {
 
   const apply = useCallback(() => {
     const st = m.current
-    const p = st.front > 1 ? st.current / st.front : 0
+    const p  = st.front > 1 ? st.current / st.front : 0
     rowRefs.current.forEach((el, r) => {
       if (el) el.style.transform = `translate3d(${-p * st.max[r]}px,0,0)`
     })
     if (thumbRef.current) {
       thumbRef.current.style.width = `${st.ratio * 100}%`
-      thumbRef.current.style.left = `${p * (1 - st.ratio) * 100}%`
+      thumbRef.current.style.left  = `${p * (1 - st.ratio) * 100}%`
     }
   }, [])
 
@@ -471,12 +436,12 @@ function GalleryPage({ navigate }) {
   }, [])
 
   useEffect(() => {
-    const st = m.current
-    st.max = rows.map((row) => Math.max(0, row.width - vw))
-    st.front = Math.max(1, st.max[0])
-    st.ratio = Math.min(1, vw / rows[0].width)
+    const st  = m.current
+    st.max    = rows.map((row) => Math.max(0, row.width - vw))
+    st.front  = Math.max(1, st.max[0])
+    st.ratio  = Math.min(1, vw / rows[0].width)
     st.target = Math.min(st.target, st.front)
-    st.current = Math.min(st.current, st.front)
+    st.current= Math.min(st.current, st.front)
     apply()
   }, [rows, vw, apply])
 
@@ -496,7 +461,7 @@ function GalleryPage({ navigate }) {
     if (e.pointerType === 'mouse' && e.button !== 0) return
     const st = m.current
     st.moved = false
-    st.drag = { x: e.clientX, start: st.target, id: e.pointerId, last: e.clientX, t: performance.now(), v: 0 }
+    st.drag  = { x: e.clientX, start: st.target, id: e.pointerId, last: e.clientX, t: performance.now(), v: 0 }
   }
 
   const onPointerMove = (e) => {
@@ -509,9 +474,9 @@ function GalleryPage({ navigate }) {
     }
     if (st.moved) {
       const now = performance.now()
-      d.v = (d.last - e.clientX) / Math.max(1, now - d.t)
+      d.v    = (d.last - e.clientX) / Math.max(1, now - d.t)
       d.last = e.clientX
-      d.t = now
+      d.t    = now
       goTo(d.start - dx)
     }
   }
@@ -525,7 +490,7 @@ function GalleryPage({ navigate }) {
   const step = Math.max(240, vw * 0.6)
   const onKeyDown = (e) => {
     if (e.key === 'ArrowRight') { e.preventDefault(); goTo(m.current.target + step) }
-    if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(m.current.target - step) }
+    if (e.key === 'ArrowLeft')  { e.preventDefault(); goTo(m.current.target - step) }
   }
 
   return (
@@ -585,31 +550,74 @@ function GalleryPage({ navigate }) {
         <ArrowLeft size={18} /> Back
       </button>
 
-      {selected && <ArtworkModal art={selected} onClose={() => setSelected(null)} />}
+      {selected && (
+        <ArtworkModal
+          art={selected}
+          onClose={() => setSelected(null)}
+          onPrev={() => {
+            const i = artworks.findIndex(a => a.title === selected.title)
+            setSelected(artworks[(i - 1 + artworks.length) % artworks.length])
+          }}
+          onNext={() => {
+            const i = artworks.findIndex(a => a.title === selected.title)
+            setSelected(artworks[(i + 1) % artworks.length])
+          }}
+        />
+      )}
     </section>
   )
 }
 
-function ArtworkModal({ art, onClose }) {
+// ─── ArtworkModal (dengan navigasi prev/next) ─────────────────
+function ArtworkModal({ art, onClose, onPrev, onNext }) {
   useEffect(() => {
-    const close = (event) => event.key === 'Escape' && onClose()
-    window.addEventListener('keydown', close)
-    return () => window.removeEventListener('keydown', close)
-  }, [onClose])
+    const onKey = (e) => {
+      if (e.key === 'Escape')      onClose()
+      if (e.key === 'ArrowLeft')   onPrev()
+      if (e.key === 'ArrowRight')  onNext()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose, onPrev, onNext])
+
+  const index = artworks.findIndex(a => a.title === art.title)
 
   return (
     <div className="modal-scrim" onMouseDown={onClose}>
-      <div className="art-modal" onMouseDown={(event) => event.stopPropagation()}>
+      <div className="art-modal" onMouseDown={(e) => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose} aria-label="Close"><X size={20} /></button>
+
+        {/* Navigasi prev */}
+        <button
+          className="modal-nav modal-prev"
+          onClick={(e) => { e.stopPropagation(); onPrev() }}
+          aria-label="Previous artwork"
+        >
+          <ArrowLeft size={18} />
+        </button>
+
         <div className={`modal-art ${art.tone}`}>
           {art.src ? <img className="modal-img" src={art.src} alt={art.title} /> : <DoodlePortrait />}
         </div>
-        <p className="eyebrow">{art.kind}</p><h2>{art.title}</h2><p className="muted">{art.note}</p>
+        <p className="eyebrow">{art.kind}</p>
+        <h2>{art.title}</h2>
+        <p className="muted">{art.note}</p>
+        <p className="modal-counter">{index + 1} / {artworks.length}</p>
+
+        {/* Navigasi next */}
+        <button
+          className="modal-nav modal-next"
+          onClick={(e) => { e.stopPropagation(); onNext() }}
+          aria-label="Next artwork"
+        >
+          <ArrowRight size={18} />
+        </button>
       </div>
     </div>
   )
 }
 
+// ─── Commission Book ──────────────────────────────────────────
 function Leaf({ eyebrow, title, children }) {
   return (
     <div className="leaf">
@@ -641,41 +649,28 @@ const WelcomePage = () => (
   <Leaf eyebrow="BEFORE YOU ORDER" title="Quick facts">
     <dl className="facts-list">
       {quickFacts.map(([label, value]) => (
-        <div key={label}><dt>{label}</dt><dd>{value}</dd></div>
+        <div key={label}>
+          <dt>{label}</dt>
+          <dd>
+            {label === 'Order via'
+              ? <><a className="inline-link" href={VGEN_URL} target="_blank" rel="noreferrer">VGen</a> / direct (local)</>
+              : value}
+          </dd>
+        </div>
       ))}
     </dl>
     <p className="leaf-note">Turn the page for prices. Tap any price row to open that service on VGen.</p>
   </Leaf>
 )
 
-const BasePage = () => (
-  <Leaf eyebrow="01 / INVESTMENT" title="Base price">
-    <BaseTable />
-    <p className="table-note">Tap a row to order that type on VGen.</p>
-  </Leaf>
-)
-
-const ExtraPage = () => (
-  <Leaf eyebrow="02 / ADD-ONS" title="Additional">
-    <ExtraTable />
-    <p className="table-note">Percentages are added on top of the base price.</p>
-  </Leaf>
-)
-
-const ScopePage = () => (
-  <Leaf eyebrow="03 / SCOPE" title="What I draw"><ScopeTable /></Leaf>
-)
-
-const ProcessPage = () => (
-  <Leaf eyebrow="04 / PROCESS" title="How it works"><StepsTable /></Leaf>
-)
-
-const TermsPage = () => (
-  <Leaf eyebrow="05 / PLEASE READ" title="Terms of service"><TermsTable /></Leaf>
-)
+const BasePage  = () => <Leaf eyebrow="01 / INVESTMENT" title="Base price"><BaseTable /><p className="table-note">Tap a row to order that type on VGen.</p></Leaf>
+const ExtraPage = () => <Leaf eyebrow="02 / ADD-ONS" title="Additional"><ExtraTable /><p className="table-note">Percentages are added on top of the base price.</p></Leaf>
+const ScopePage = () => <Leaf eyebrow="03 / SCOPE" title="What I draw"><ScopeTable /></Leaf>
+const ProcessPage = () => <Leaf eyebrow="04 / PROCESS" title="How it works"><StepsTable /></Leaf>
+const TermsPage   = () => <Leaf eyebrow="05 / PLEASE READ" title="Terms of service"><TermsTable /></Leaf>
 
 const OrderPage = () => (
-  <Leaf eyebrow="READY WHEN YOU ARE" title="Let’s talk about your idea.">
+  <Leaf eyebrow="READY WHEN YOU ARE" title="Let's talk about your idea.">
     <div className="order-links">
       <OrderCta className="primary-button" />
       <a className="underlined-link" href={TRELLO_URL} target="_blank" rel="noreferrer">Check the queue <ExternalLink size={14} /></a>
@@ -703,7 +698,7 @@ function Book() {
   const go = (nextIndex) => setIndex(Math.max(0, Math.min(count, nextIndex)))
   const onKeyDown = (event) => {
     if (event.key === 'ArrowRight') go(index + 1)
-    if (event.key === 'ArrowLeft') go(index - 1)
+    if (event.key === 'ArrowLeft')  go(index - 1)
   }
 
   return (
@@ -783,7 +778,14 @@ function CommissionList() {
     <>
       <dl className="quick-facts">
         {quickFacts.map(([label, value]) => (
-          <div key={label}><dt>{label}</dt><dd>{value}</dd></div>
+          <div key={label}>
+            <dt>{label}</dt>
+            <dd>
+              {label === 'Order via'
+                ? <><a className="inline-link" href={VGEN_URL} target="_blank" rel="noreferrer">VGen</a> / direct (local)</>
+                : value}
+            </dd>
+          </div>
         ))}
       </dl>
       <nav className="jump-nav" aria-label="Sections">
@@ -796,9 +798,9 @@ function CommissionList() {
         <ExtraTable />
         <p className="table-note">Percentages (+40%, +80%) are added on top of the base price.</p>
       </section>
-      <section id="notes" className="info-section"><h2><span>02</span> What I draw</h2><ScopeTable /></section>
+      <section id="notes"   className="info-section"><h2><span>02</span> What I draw</h2><ScopeTable /></section>
       <section id="process" className="info-section"><h2><span>03</span> How it works</h2><StepsTable /></section>
-      <section id="terms" className="info-section"><h2><span>04</span> Terms of service</h2><TermsTable /></section>
+      <section id="terms"   className="info-section"><h2><span>04</span> Terms of service</h2><TermsTable /></section>
       <div className="order-banner">
         <div><span className="eyebrow">READY WHEN YOU ARE</span><h2>Let's talk<br /><em>about your idea.</em></h2></div>
         <div className="order-actions">
@@ -815,10 +817,10 @@ function useIsWide() {
   const query = '(min-width: 900px)'
   const [wide, setWide] = useState(() => window.matchMedia(query).matches)
   useEffect(() => {
-    const mediaQuery = window.matchMedia(query)
-    const onChange = (event) => setWide(event.matches)
-    mediaQuery.addEventListener('change', onChange)
-    return () => mediaQuery.removeEventListener('change', onChange)
+    const mq = window.matchMedia(query)
+    const onChange = (e) => setWide(e.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
   }, [])
   return wide
 }
@@ -849,14 +851,14 @@ function InfoPage({ navigate }) {
   return (
     <section className="page simple-page">
       <img className="about-logo only-light" src="/brand/loyn-logo-light.webp" alt="Loyn" width="280" height="149" />
-      <img className="about-logo only-dark" src="/brand/loyn-logo-dark.webp" alt="Loyn" width="280" height="149" />
+      <img className="about-logo only-dark"  src="/brand/loyn-logo-dark.webp"  alt="Loyn" width="280" height="149" />
       <p className="eyebrow">A LITTLE ABOUT ME</p>
-      <h1>Hello, I’m Loyn.</h1>
+      <h1>Hello, I'm Loyn.</h1>
       <div className="simple-card">
         <span className="status-dot" />
         <h2>Loyn Illust — illustrator.</h2>
-        <p>Hi! I’m a freelance artist. I enjoy creating concept art, illustrations, character designs, scenery, unique things, and more—all available through the VGen platform.</p>
-        <p>Hmm... I can’t really say too much, as I’d prefer not to share any private information, hehe~</p>
+        <p>Hi! I'm a freelance artist. I enjoy creating concept art, illustrations, character designs, scenery, unique things, and more—all available through the VGen platform.</p>
+        <p>Hmm... I can't really say too much, as I'd prefer not to share any private information, hehe~</p>
         <ul className="contact-list">
           {socials.map(([label, href]) => (
             <li key={label}><a className="underlined-link" href={href} target="_blank" rel="noreferrer">{label} <ExternalLink size={14} /></a></li>
@@ -867,44 +869,36 @@ function InfoPage({ navigate }) {
     </section>
   )
 }
+
+// ─── Theme hook ───────────────────────────────────────────────
 function useTheme() {
   const [theme, setTheme] = useState(() => document.documentElement.dataset.theme || 'light')
   useEffect(() => {
     document.documentElement.dataset.theme = theme
     document.querySelector('meta[name="theme-color"]')
       ?.setAttribute('content', theme === 'dark' ? '#0f161b' : '#f4eee2')
-    try {
-      localStorage.setItem('loyn-theme', theme)
-    } catch (error) {
-      console.warn('Unable to save the theme preference.', error)
-    }
+    try { localStorage.setItem('loyn-theme', theme) } catch (err) { console.warn('Unable to save theme.', err) }
   }, [theme])
 
   const toggleTheme = () => {
     const root = document.documentElement
     root.classList.add('theme-anim')
     window.setTimeout(() => root.classList.remove('theme-anim'), 450)
-    setTheme((currentTheme) => currentTheme === 'dark' ? 'light' : 'dark')
+    setTheme((t) => t === 'dark' ? 'light' : 'dark')
   }
-
   return [theme, toggleTheme]
 }
 
+// ─── Custom cursor ────────────────────────────────────────────
 function CustomCursor() {
   const cursorRef = useRef(null)
 
   useEffect(() => {
-    const cursor = cursorRef.current
-    const root = document.documentElement
+    const cursor    = cursorRef.current
+    const root      = document.documentElement
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const userAgent = navigator.userAgent
-    const chromium = /(Chrome|Chromium|Edg|SamsungBrowser)\//.test(userAgent) && !/CriOS|FxiOS/.test(userAgent)
-    let x = -100
-    let y = -100
-    let cursorX = -100
-    let cursorY = -100
-    let frame = 0
-    let visible = false
+    const chromium  = /(Chrome|Chromium|Edg|SamsungBrowser)\//.test(navigator.userAgent) && !/CriOS|FxiOS/.test(navigator.userAgent)
+    let x = -100, y = -100, cursorX = -100, cursorY = -100, frame = 0, visible = false
 
     if (chromium && window.CSS?.supports?.('backdrop-filter', 'url(#cursor-gradmap)')) {
       cursor.classList.add('gradmap')
@@ -915,10 +909,8 @@ function CustomCursor() {
       cursorX += (x - cursorX) * smoothing
       cursorY += (y - cursorY) * smoothing
       cursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0)`
-
       if (Math.abs(x - cursorX) < 0.1 && Math.abs(y - cursorY) < 0.1) {
-        cursorX = x
-        cursorY = y
+        cursorX = x; cursorY = y
         cursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0)`
         frame = 0
       } else {
@@ -935,33 +927,19 @@ function CustomCursor() {
       frame = 0
     }
 
-    const onMove = (event) => {
-      if (event.pointerType !== 'mouse') {
-        hide()
-        return
-      }
-
-      x = event.clientX
-      y = event.clientY
-      if (!visible) {
-        cursorX = x
-        cursorY = y
-        root.classList.add('has-cursor')
-        cursor.classList.add('on')
-        visible = true
-      }
+    const onMove = (e) => {
+      if (e.pointerType !== 'mouse') { hide(); return }
+      x = e.clientX; y = e.clientY
+      if (!visible) { cursorX = x; cursorY = y; root.classList.add('has-cursor'); cursor.classList.add('on'); visible = true }
       if (!frame) frame = requestAnimationFrame(animate)
-
-      const target = event.target
-      const link = target.closest?.('a, button, [role="button"], summary, label, .row-link, .hung-paper')
-      const drag = !link && target.closest?.('.rope-stage')
+      const target = e.target
+      const link   = target.closest?.('a, button, [role="button"], summary, label, .row-link, .hung-paper')
+      const drag   = !link && target.closest?.('.rope-stage')
       cursor.dataset.state = link ? 'link' : drag ? 'drag' : ''
     }
 
-    const onDown = (event) => {
-      if (event.pointerType === 'mouse') cursor.classList.add('down')
-    }
-    const onUp = () => cursor.classList.remove('down')
+    const onDown = (e) => { if (e.pointerType === 'mouse') cursor.classList.add('down') }
+    const onUp   = () => cursor.classList.remove('down')
 
     window.addEventListener('pointermove', onMove, { passive: true })
     window.addEventListener('pointerdown', onDown)
@@ -985,10 +963,7 @@ function CustomCursor() {
     <>
       <svg className="cursor-defs" width="0" height="0" aria-hidden="true" focusable="false">
         <filter id="cursor-gradmap" colorInterpolationFilters="sRGB" x="0" y="0" width="100%" height="100%">
-          <feColorMatrix
-            type="matrix"
-            values="0.2126 0.7152 0.0722 0 0  0.2126 0.7152 0.0722 0 0  0.2126 0.7152 0.0722 0 0  0 0 0 1 0"
-          />
+          <feColorMatrix type="matrix" values="0.2126 0.7152 0.0722 0 0  0.2126 0.7152 0.0722 0 0  0.2126 0.7152 0.0722 0 0  0 0 0 1 0" />
           <feComponentTransfer>
             <feFuncR type="table" tableValues="0.06 0.38 0.90 1.00" />
             <feFuncG type="table" tableValues="0.02 0.08 0.38 0.80" />
@@ -998,17 +973,7 @@ function CustomCursor() {
       </svg>
       <div className="cursor" ref={cursorRef} aria-hidden="true">
         <span className="cursor-dot">
-          <svg
-            className="cursor-arrows"
-            viewBox="0 0 40 20"
-            width="30"
-            height="15"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
+          <svg className="cursor-arrows" viewBox="0 0 40 20" width="30" height="15" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
             <polyline className="ar-l" points="10,3 3,10 10,17" />
             <polyline className="ar-r" points="30,3 37,10 30,17" />
           </svg>
@@ -1018,25 +983,41 @@ function CustomCursor() {
   )
 }
 
+// ─── App root ─────────────────────────────────────────────────
 export default function App() {
-  const [page, setPage] = useState('landing')
-  const [previousPage, setPreviousPage] = useState('landing')
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [transitionKey, setTransitionKey] = useState(0)
-  const [theme, toggleTheme] = useTheme()
+  const [page, setPage]           = useState(getPageFromHash)
+  const [previousPage, setPrevPage] = useState('landing')
+  const [menuOpen, setMenuOpen]   = useState(false)
+  const [transitionKey, setKey]   = useState(0)
+  const [theme, toggleTheme]      = useTheme()
 
+  // Sync halaman ke URL hash
   const navigate = (nextPage) => {
     if (nextPage === page) return
-    setPreviousPage(page)
+    setPrevPage(page)
     setPage(nextPage)
-    setTransitionKey((key) => key + 1)
+    setKey((k) => k + 1)
     window.scrollTo({ top: 0, behavior: 'smooth' })
+    const hash = PAGE_HASH[nextPage]
+    window.history.pushState(null, '', hash ? `#${hash}` : location.pathname)
   }
-  const goBack = () => navigate(previousPage === page ? 'main' : previousPage)
+
+  // Tangani tombol Back browser
   useEffect(() => {
-    const onKey = (event) => {
-      if (event.key === 'Escape') setMenuOpen(false)
+    const onPop = () => {
+      const nextPage = getPageFromHash()
+      setPrevPage(page)
+      setPage(nextPage)
+      setKey((k) => k + 1)
     }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [page])
+
+  const goBack = () => navigate(previousPage === page ? 'main' : previousPage)
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') setMenuOpen(false) }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [])
@@ -1047,10 +1028,10 @@ export default function App() {
       <Header onMenu={() => setMenuOpen(true)} onHome={() => navigate('landing')} onBack={goBack} onNavigate={navigate} theme={theme} onToggleTheme={toggleTheme} current={page} />
       <main className="main-content" key={transitionKey}>
         <div className="page-transition">
-          {page === 'landing' && <Landing navigate={navigate} />}
-          {page === 'main' && <GalleryPage navigate={navigate} />}
+          {page === 'landing'    && <Landing    navigate={navigate} />}
+          {page === 'main'       && <GalleryPage navigate={navigate} />}
           {page === 'commission' && <CommissionPage navigate={navigate} />}
-          {page === 'about' && <InfoPage navigate={navigate} />}
+          {page === 'about'      && <InfoPage   navigate={navigate} />}
         </div>
       </main>
       <MenuDrawer open={menuOpen} onClose={() => setMenuOpen(false)} navigate={navigate} />
