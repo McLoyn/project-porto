@@ -568,50 +568,96 @@ function GalleryPage({ navigate }) {
   )
 }
 
-// ─── ArtworkModal (dengan navigasi prev/next) ─────────────────
+// ─── ArtworkModal (navigasi swipe & keyboard) ─────────────────
 function ArtworkModal({ art, onClose, onPrev, onNext }) {
+  const [direction, setDirection] = useState('next')
+  const dragStart = useRef(null)
+
+  const handlePrev = useCallback(() => {
+    setDirection('prev')
+    onPrev()
+  }, [onPrev])
+
+  const handleNext = useCallback(() => {
+    setDirection('next')
+    onNext()
+  }, [onNext])
+
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key === 'Escape')      onClose()
-      if (e.key === 'ArrowLeft')   onPrev()
-      if (e.key === 'ArrowRight')  onNext()
+      if (e.key === 'Escape')     onClose()
+      if (e.key === 'ArrowLeft')  handlePrev()
+      if (e.key === 'ArrowRight') handleNext()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [onClose, onPrev, onNext])
+  }, [onClose, handlePrev, handleNext])
 
-  const index = artworks.findIndex(a => a.title === art.title)
+  const startDrag = (x, y) => {
+    dragStart.current = { x, y, time: Date.now() }
+  }
+
+  const endDrag = (x, y) => {
+    if (!dragStart.current) return
+    const dx = x - dragStart.current.x
+    const dy = y - dragStart.current.y
+    const dt = Date.now() - dragStart.current.time
+    dragStart.current = null
+
+    // Threshold: geser lebih dari 40px secara horizontal dalam waktu < 700ms
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.2 && dt < 700) {
+      if (dx < 0) {
+        handleNext()
+      } else {
+        handlePrev()
+      }
+    }
+  }
+
+  const index = artworks.findIndex((a) => a.title === art.title)
 
   return (
     <div className="modal-scrim" onMouseDown={onClose}>
-      <div className="art-modal" onMouseDown={(e) => e.stopPropagation()}>
+      <div
+        className="art-modal"
+        onMouseDown={(e) => {
+          e.stopPropagation()
+          if (e.button === 0 && !e.target.closest('button')) {
+            startDrag(e.clientX, e.clientY)
+          }
+        }}
+        onMouseUp={(e) => endDrag(e.clientX, e.clientY)}
+        onTouchStart={(e) => {
+          startDrag(e.touches[0].clientX, e.touches[0].clientY)
+        }}
+        onTouchEnd={(e) => {
+          if (e.changedTouches?.[0]) {
+            endDrag(e.changedTouches[0].clientX, e.changedTouches[0].clientY)
+          }
+        }}
+      >
         <button className="modal-close" onClick={onClose} aria-label="Close"><X size={20} /></button>
 
-        {/* Navigasi prev */}
-        <button
-          className="modal-nav modal-prev"
-          onClick={(e) => { e.stopPropagation(); onPrev() }}
-          aria-label="Previous artwork"
-        >
-          <ArrowLeft size={18} />
-        </button>
-
-        <div className={`modal-art ${art.tone}`}>
-          {art.src ? <img className="modal-img" src={art.src} alt={art.title} /> : <DoodlePortrait />}
+        <div key={art.title} className={`modal-body slide-${direction}`}>
+          <div className={`modal-art ${art.tone}`}>
+            {art.src ? (
+              <img className="modal-img" src={art.src} alt={art.title} draggable="false" />
+            ) : (
+              <DoodlePortrait />
+            )}
+          </div>
+          <div className="modal-meta">
+            <div>
+              <p className="eyebrow">{art.kind}</p>
+              <h2>{art.title}</h2>
+              <p className="muted">{art.note}</p>
+            </div>
+            <div className="modal-status-bar">
+              <span className="modal-counter">{index + 1} / {artworks.length}</span>
+              <span className="modal-swipe-hint">swipe ✳</span>
+            </div>
+          </div>
         </div>
-        <p className="eyebrow">{art.kind}</p>
-        <h2>{art.title}</h2>
-        <p className="muted">{art.note}</p>
-        <p className="modal-counter">{index + 1} / {artworks.length}</p>
-
-        {/* Navigasi next */}
-        <button
-          className="modal-nav modal-next"
-          onClick={(e) => { e.stopPropagation(); onNext() }}
-          aria-label="Next artwork"
-        >
-          <ArrowRight size={18} />
-        </button>
       </div>
     </div>
   )
